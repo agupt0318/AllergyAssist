@@ -302,9 +302,14 @@ class ViewController: UIViewController {
 class ScanLabel : UIViewController {
     override func viewDidLoad(){
         super.viewDidLoad()
+        let textView = UITextView(frame: CGRect(x: 50, y: 525, width: 300, height: 225))
+        
+        textView.font = UIFont.boldSystemFont(ofSize: 20)
+        textView.text = IngredientList.text
+        view.addSubview(textView)
         //ImportImage.borderWidth = 1
         //ImportImage.borderColor = UIColor.black.cgColor
-        view.addSubview(ImportImage)
+        view.addSubview(display_imageview)
         view.addSubview(AllergyAssist)
         PhotoIcon.frame = CGRect (
            x: 80,
@@ -312,12 +317,32 @@ class ScanLabel : UIViewController {
            width: 40,
            height: 40)
         view.addSubview(PhotoIcon)
+        recognizeText(image: display_imageview.image)
         
         start3()
-        
     }
     
-    let ImportImage : UIButton = {
+    let User1 : UIButton = {
+        let U1 = UIButton()
+        U1.setTitle("User 1", for: .normal)
+        U1.backgroundColor = UIColor.systemOrange
+        U1.layer.cornerRadius = 10
+        //U1.addTarget(self, action: #selector(Scan_Label), for : .touchUpInside)
+        return U1
+    }()
+    
+    let display_imageview : UIImageView = {
+        let iv = UIImageView()
+        iv.backgroundColor = UIColor.systemGray
+        iv.isUserInteractionEnabled = true
+            iv.image = UIImage(named : "example2") //iv.image = UIImage(named : "sample.png")
+        iv.layer.borderWidth = 2
+        iv.layer.borderColor = UIColor.black.cgColor
+        return iv
+    }()
+    
+    
+    /*let ImportImage : UIButton = {
         let II = UIButton()
         //II.setTitle("Banana", for: .normal)
         II.backgroundColor = UIColor.systemGreen
@@ -327,17 +352,37 @@ class ScanLabel : UIViewController {
         
         return II
         
+    }()*/
+    
+    let home_bt : UIButton = {
+        let bt = UIButton()
+        bt.setTitle("Home", for: .normal)
+        bt.backgroundColor = UIColor.systemGray
+        return bt
     }()
     
+    @objc func h1(sender : UIButton){
+        let vc = ViewController()
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true)
+    }
+    
     private func start3(){
-        ImportImage.frame = CGRect(x : 50, y: 180, width: 300, height: 250 )
-        view.addSubview(ImportImage)
+        display_imageview.frame = CGRect(x : 50, y: 180, width: 300, height: 250 )
+        view.addSubview(display_imageview)
+        User1.frame = CGRect(x : 150, y: 500, width: 100, height: 50 )
+        view.addSubview(display_imageview)
         AllergyAssist.frame = CGRect(x : 100, y: 50, width: 200, height: 36 )
         view.addSubview(AllergyAssist)
-        ScanAnItem.frame = CGRect(x : 125, y: 115, width: 200, height: 50 )
+        ScanAnItem.frame = CGRect(x : 125, y: 120, width: 200, height: 50 )
         view.addSubview(ScanAnItem)
         ChooseUser.frame = CGRect(x : 150, y: 450, width: 100, height: 50 )
         view.addSubview(ChooseUser)
+        IngredientList.frame = CGRect(x : 50, y: 525, width: 300, height: 225 )
+        view.addSubview(IngredientList)
+        home_bt.frame = CGRect(x: 150, y: 750, width: 100, height: 30)
+        home_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
+        view.addSubview(home_bt)
         
     }
     
@@ -378,6 +423,23 @@ class ScanLabel : UIViewController {
          return chooseUser
      }()
     
+    private let IngredientList: UITextView = {
+        let iList = UITextView()
+        //iList.numberOfLines = 12
+        //iList.textAlignment = .center
+        iList.textColor = UIColor.black
+        iList.font = UIFont.boldSystemFont(ofSize: 12)
+        iList.text = ""
+        iList.isEditable = false
+        iList.isUserInteractionEnabled = true
+        //chooseUser.cornerRadius = 10
+        iList.backgroundColor = UIColor.white
+        iList.layer.borderWidth = 1
+        iList.layer.borderColor = UIColor.black.cgColor
+         
+         return iList
+     }()
+    
     private let ScanAnItem: UILabel = {
          let SAI = UILabel()
         SAI.frame = CGRect (
@@ -403,6 +465,83 @@ class ScanLabel : UIViewController {
         return photoIcon
     }()
     
+    private func recognizeText(image: UIImage?) {
+        guard let cgImage = image?.cgImage else {
+            fatalError("could not get image")
+    }
+    
+    //Handler
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+    //Request
+        let request = VNRecognizeTextRequest { [weak self] request, error in
+            guard let observations = request.results as? [VNRecognizedTextObservation],
+                  error == nil else {
+                return
+    }
+    
+            let text = observations.compactMap({
+                $0.topCandidates(1).first?.string
+           }).joined(separator: " ,")
+    
+            DispatchQueue.main.async {
+        self?.IngredientList.text = text
+            }
+        }
+    //Process the Request
+           do {
+               try handler.perform([request])
+           }
+           catch{
+               IngredientList.text = ("\(error)")
+           }
+        
+       }
+   
+   
+   
+   //Data Analysis
+   public func DA(mes : String) -> Bool{
+           //var text1 = mes
+           print(mes)
+       //passing the raw data in form of string
+       // convert the string into array and split the substring by special symbols such as , ; space...
+       // "the food contains peanut, fruit, milk" -> ["the", "food", "contains", "peanut", "fruit", "milk"]
+       let res : Bool = false;
+       var cnt : Int = 0
+       let arr = mes.split(separator: ", ")
+       print(arr)
+       var percentage_arr = [String]()
+       return res;
+       for item in arr {
+           if item.contains("%") {
+               percentage_arr.append(String(item))
+           }
+       }
+       print(percentage_arr)
+       for i in 0..<arr.count {
+           let lb = UILabel()
+           lb.numberOfLines = -1
+           let size : CGFloat = CGFloat(arr[i].count * 18 + 10)
+           let x : CGFloat = 10
+           let y = CGFloat(i) * 20 + 300
+           lb.frame = CGRect(x: x, y: y, width: size, height: 20)
+           lb.backgroundColor = UIColor.black
+           lb.clipsToBounds = true
+           lb.layer.cornerRadius = 3
+           lb.textColor = .white
+           lb.font = UIFont.boldSystemFont(ofSize: 18)
+           lb.text = String(arr[i])
+           view.addSubview(lb)
+       }
+       /*for item in mes {
+           for inner in sample_db{
+               if item == Character(inner){
+                   cnt += 1
+               }
+               
+           }
+       }*/
+   }
 }
 
 class ScanBarcode : UIViewController {
@@ -581,9 +720,14 @@ class Add_User : UIViewController {
     override func viewDidLoad(){
         super.viewDidLoad()
         view.addSubview(EditButton)
-        
         start3()
-        
+
+        let res = ["Asian", "Black", "Latino", "White", "Other"]
+        let s = (view.frame.width/CGFloat(res.count)) * 0.9
+        let bts = SelectRace(n: res.count, arr: res, size: s-10)
+        for item in bts{
+            view.addSubview(item)
+        }
     }
     
     let EditButton : UIButton = {
@@ -608,6 +752,37 @@ class Add_User : UIViewController {
         
     }()
     
+    func SelectRace(n : Int, arr : [String], size: CGFloat)-> [UIButton]{
+        var res = [UIButton]()
+        //design the pattern
+        let y : CGFloat = view.frame.width - 20
+        for i in 0..<n{
+            let bt = UIButton()
+            bt.setTitle(arr[i], for: .normal)
+            let y : CGFloat = input_box2.center.y + input_box2.frame.height + 10
+            let x : CGFloat = CGFloat(i) * size * 1.2 + 10  //f(x) = ax + b
+            bt.frame = CGRect(x : x, y: y, width: size, height: size)
+            bt.setTitleColor(UIColor.black, for: .normal)
+            bt.backgroundColor = UIColor.systemBlue
+            res.append(bt)
+            bt.addTarget(self, action: #selector(SelectingRace), for : .touchUpInside)
+        }
+        //bt.addTarget(self, action: #selector(SelectingRace), for : .touchUpInside)
+        return res
+    }
+    
+    @objc func SelectingRace(){
+        //pushing the current VC to another T(x) --->  X
+        //step one : instance or object declaration
+        let vc = UserProfile()
+        //B obj = new B()
+        vc.view.backgroundColor = UIColor.white
+        //vc.title_lb.text = sign_in.titleLabel?.text
+        //self.present(vc, animated : true)
+                
+        
+    }
+    
     let SetUpMyAllergenProfile : UIButton = {
         let SUMAP = UIButton()
         SUMAP.setTitle("Set Up My Allergen Profile", for: .normal)
@@ -619,18 +794,53 @@ class Add_User : UIViewController {
         
     }()
     
+    let input_box : UITextView = {
+        let tx = UITextView()
+        tx.isUserInteractionEnabled = true
+        tx.layer.borderWidth = 2
+        tx.layer.borderColor = UIColor.black.cgColor
+        return tx
+    }()
+    
+    let input_box1 : UITextView = {
+        let tx1 = UITextView()
+        tx1.isUserInteractionEnabled = true
+        tx1.layer.borderWidth = 2
+        tx1.layer.borderColor = UIColor.black.cgColor
+        return tx1
+    }()
+    
+    let input_box2 : UITextView = {
+        let tx2 = UITextView()
+        tx2.isUserInteractionEnabled = true
+        tx2.layer.borderWidth = 2
+        tx2.layer.borderColor = UIColor.black.cgColor
+        return tx2
+    }()
     
     private func start3(){
-        EditButton.frame = CGRect(x : 125, y: 300, width: 50, height: 36 )
+        EditButton.frame = CGRect(x : 125, y: 400, width: 50, height: 36 )
         view.addSubview(EditButton)
-        SaveButton.frame = CGRect(x : 225, y: 300, width: 50, height: 36 )
+        SaveButton.frame = CGRect(x : 225, y: 400, width: 50, height: 36 )
         view.addSubview(SaveButton)
-        SetUpMyAllergenProfile.frame = CGRect(x : 75, y: 450, width : 250, height : 36)
+        SetUpMyAllergenProfile.frame = CGRect(x : 75, y: 575, width : 250, height : 36)
         view.addSubview(SetUpMyAllergenProfile)
         UserAccount.frame = CGRect(x : 0, y: 50, width: 400, height: 36 )
         view.addSubview(UserAccount)
-        Finalize.frame = CGRect(x : 50, y: 365, width: 300, height: 72 )
+        Finalize.frame = CGRect(x : 50, y: 465, width: 300, height: 72 )
         view.addSubview(Finalize)
+        input_box.frame = CGRect(x:45, y: 120, width: 300, height: 30)
+        view.addSubview(input_box)
+        input_box1.frame = CGRect(x:45, y: 180, width: 300, height: 30)
+        view.addSubview(input_box1)
+        input_box2.frame = CGRect(x:45, y: 240, width: 300, height: 30)
+        view.addSubview(input_box2)
+        emailAccount.frame = CGRect(x : 50, y: 96, width: 300, height: 24 )
+        view.addSubview(emailAccount)
+        userName.frame = CGRect(x : 50, y: 156, width: 300, height: 24 )
+        view.addSubview(userName)
+        ageString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
+        view.addSubview(ageString)
     }
     
     private let UserAccount: UILabel = {
@@ -650,6 +860,62 @@ class Add_User : UIViewController {
          
          return userAccount
      }()
+    
+    private let emailAccount: UILabel = {
+         let email = UILabel()
+         email.frame = CGRect (
+             x: 100,
+             y: 100,
+             width: 200,
+             height: 48)
+         email.numberOfLines = 0
+         //email.textAlignment = .center
+         email.textColor = UIColor.black
+         email.font = UIFont.boldSystemFont(ofSize: 12)
+         email.text = "Enter Your Email"
+         email.backgroundColor = UIColor.white
+        
+         
+         return email
+     }()
+    
+    private let userName: UILabel = {
+         let username = UILabel()
+         username.frame = CGRect (
+             x: 100,
+             y: 100,
+             width: 200,
+             height: 48)
+         username.numberOfLines = 0
+         //email.textAlignment = .center
+         username.textColor = UIColor.black
+         username.font = UIFont.boldSystemFont(ofSize: 12)
+         username.text = "Enter Your Name"
+         username.backgroundColor = UIColor.white
+        
+         
+         return username
+     }()
+    
+    private let ageString: UILabel = {
+         let age = UILabel()
+        age.frame = CGRect (
+             x: 100,
+             y: 100,
+             width: 200,
+             height: 48)
+        age.numberOfLines = 0
+         //email.textAlignment = .center
+        age.textColor = UIColor.black
+        age.font = UIFont.boldSystemFont(ofSize: 12)
+        age.text = "Age"
+        age.backgroundColor = UIColor.white
+        
+         
+         return age
+     }()
+    
+
     
     private let Finalize: UILabel = {
          let finalize = UILabel()
@@ -672,6 +938,7 @@ class Add_User : UIViewController {
     private let plusSign: UIImageView = {
         let ps = UIImageView()
         ps.image = UIImage(named: "Cover")
+        
         ps.contentMode = .scaleAspectFit
         return ps
     }()
@@ -696,5 +963,47 @@ class UserProfile : UIViewController {
         
         //start3()
         
+    }
+}
+
+class ReadingTheLabel  : UIViewController{
+    override func viewDidLoad(){
+        super.viewDidLoad()
+        title_lb.frame = CGRect(x : 10, y: 60, width : 120, height: 48)
+        title_lb.textAlignment =  .center
+        view.addSubview(title_lb)
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2){
+            self.start()
+        }
+    }
+    let title_lb = UILabel()
+    var display_bars = [UIButton]()
+    var data_from_main : Int = 0
+    var data_string_from_main : [String]?
+    
+    func iterate(n : Int, arr : [String])-> [UIButton]{
+        var res = [UIButton]()
+        //design the pattern
+        let w : CGFloat = view.frame.width - 20
+        let size : CGFloat = 24
+        for i in 0..<n{
+            let bt = UIButton()
+            let length : CGFloat = CGFloat(arr[i].count) * size * 1.2
+            bt.setTitle(arr[i], for: .normal)
+            let x : CGFloat = 10
+            let y : CGFloat = CGFloat(i) * size * 1.2 + 60 //f(x) = ax + b
+            bt.frame = CGRect(x : x, y: y, width: w, height: size)
+            bt.setTitleColor(UIColor.black, for: .normal)
+            bt.backgroundColor = UIColor.systemGray
+            res.append(bt)
+        }
+        return res
+    }
+    func start(){
+        display_bars = iterate(n : data_from_main, arr : data_string_from_main!)
+        for item in display_bars {
+            view.addSubview(item)
+            
+        }
     }
 }
