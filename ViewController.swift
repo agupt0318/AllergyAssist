@@ -1,3 +1,6 @@
+import UIKit
+
+var greeting = "Hello, playground"
 // https://www.youtube.com/watch?v=_U6_l58Cv4E
 //  ViewController.swift
 //  Allergy Without StoryBoard
@@ -70,22 +73,6 @@ class Account{
 
 class ViewController: UIViewController {
     var count = 0;
-    
-    /*@IBOutlet weak var textField: UITextField!
-    
-    @IBOutlet weak var label1: UILabel!
-    
-    @IBAction func ButtonClicked(_ sender: Any) {
-        
-        if textField.text != nil {
-            
-            label.text = "You Are " + textField.text! + " Years Old"
-        
-    }*/
-    
-        
-        
-    
     
     private let label: UILabel = {
          let label = UILabel()
@@ -297,80 +284,6 @@ class ViewController: UIViewController {
             }
         }*/
     }
-    
-    let token = "YOUR_SERVER_ACCESS_TOKEN"
-        
-    let strUrl = "YOUR_SERVER_URL"
-        
-    @IBOutlet weak var docText: UITextField!
-    @IBOutlet weak var browse: UIImageView!
-        
-    let VC_loader = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoaderViewController") as! LoaderViewController
-        
-    override func viewDidLoad() {
-        super.viewDidLoad()
-            
-        browse.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(upload)))
-        browse.isUserInteractionEnabled = true
-            // Do any additional setup after loading the view.
-    }
-
-        @objc func upload(){
-            
-           let importMenu = UIDocumentPickerViewController(documentTypes: [String(kUTTypePDF)], in: .import)
-           importMenu.delegate = self
-           importMenu.modalPresentationStyle = .formSheet
-           self.present(importMenu, animated: true, completion: nil)
-            
-        }
-        
-        func Doc(url: String, docData: Data?, parameters: [String : Any], onCompletion: ((JSON?) -> Void)? = nil, onError: ((Error?) -> Void)? = nil, fileName: String, token : String!){
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.33){
-                
-                self.present(self.VC_loader, animated: false)
-            }
-             let headers: HTTPHeaders = [
-                 "Content-type": "multipart/form-data",
-                 "Token": "Bearer " + token
-             ]
-             
-             print("Headers => \(headers)")
-             
-             print("Server Url => \(url)")
-          
-             Alamofire.upload(multipartFormData: { (multipartFormData) in
-                 if let data = docData{
-                     multipartFormData.append(data, withName: "club_file", fileName: fileName, mimeType: "application/pdf")
-                 }
-                 
-                 for (key, value) in parameters {
-                     multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
-                  print("PARAMS => \(multipartFormData)")
-                 }
-                 
-             }, to: url, method: .post, headers: headers) { (result) in
-                 switch result{
-                 case .success(let upload, _, _):
-                     upload.responseJSON { response in
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.33){
-                            self.VC_loader.dismiss(animated: false, completion: nil)
-                        }
-                        
-                         print("Succesfully uploaded")
-                         if let err = response.error{
-                             onError?(err)
-                             return
-                         }
-                         print(JSON(response.result.value as Any))
-                         onCompletion?(JSON(response.result.value as Any))
-                     }
-                 case .failure(let error):
-                     print("Error in upload: \(error.localizedDescription)")
-                     onError?(error)
-                 }
-             }
-         }
 }
 
 class ScanLabel : UIViewController {
@@ -790,16 +703,55 @@ class UserAccountInfo : UIViewController{
     
 }
 
+class Users {
+    let email : String?
+    let name: String?
+    let race : String?
+    let password : String?
+    
+    init (email: String, name : String, race : String, password : String){
+        self.email = email
+        self.name = name
+        self.race = race
+        self.password = password
+    }
+}
+
+class Main_VC1 : UIViewController {
+    
+    var email = "";
+    var name = "";
+    var race = "";
+    var password = "";
+    
+    lazy var user = Users(email: email, name: name, race : race, password: password)
+    override func viewDidLoad(){
+        super.viewDidLoad()
+        print(user.email)
+        print(user.name)
+        print(user.race)
+        print(user.password)
+    }
+}
+
 class Add_User : UIViewController {
+    
+    var user_registration = ["Email" : "sample", "Password" : "N/A", "Name" : "N/A", "Race" : "N/A"]
+    let races = ["Asian", "Black", "Latino", "White", "Other"]
+    lazy var res = SelectRace(arr: races,
+                              n: races.count,
+                              c: UIColor.systemBlue,
+                              s: (view.frame.width/CGFloat(races.count)) * 0.85,
+                              y: 200,
+                              m: 1.2)
+    
     override func viewDidLoad(){
         super.viewDidLoad()
         view.addSubview(EditButton)
         start3()
-
-        let res = ["Asian", "Black", "Latino", "White", "Other"]
-        let s = (view.frame.width/CGFloat(res.count)) * 0.9
-        let bts = SelectRace(n: res.count, arr: res, size: s-10)
-        for item in bts{
+        
+        for item in res {
+            item.addTarget(self, action: #selector(SelectingRace(sender: )), for: .touchUpInside)
             view.addSubview(item)
         }
     }
@@ -815,7 +767,7 @@ class Add_User : UIViewController {
         
     }()
     
-    let SaveButton : UIButton = {
+    lazy var SaveButton : UIButton = {
         let SB = UIButton()
         SB.setTitle("Save", for: .normal)
         SB.backgroundColor = UIColor.systemGreen
@@ -826,34 +778,41 @@ class Add_User : UIViewController {
         
     }()
     
-    func SelectRace(n : Int, arr : [String], size: CGFloat)-> [UIButton]{
+    func SelectRace (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
         var res = [UIButton]()
-        //design the pattern
-        let y : CGFloat = view.frame.width - 20
-        for i in 0..<n{
+        for i in 0..<n {
             let bt = UIButton()
+            let x : CGFloat = CGFloat(i) * s * m + 10
+            bt.frame = CGRect(x: x, y: y+100, width: s, height: s)
+            bt.tag = i
             bt.setTitle(arr[i], for: .normal)
-            let y : CGFloat = input_box2.center.y + input_box2.frame.height + 10
-            let x : CGFloat = CGFloat(i) * size * 1.2 + 10  //f(x) = ax + b
-            bt.frame = CGRect(x : x, y: y, width: size, height: size)
-            bt.setTitleColor(UIColor.black, for: .normal)
-            bt.backgroundColor = UIColor.systemBlue
+            bt.backgroundColor = c
             res.append(bt)
-            bt.addTarget(self, action: #selector(SelectingRace), for : .touchUpInside)
         }
-        //bt.addTarget(self, action: #selector(SelectingRace), for : .touchUpInside)
         return res
     }
-    
-    @objc func SelectingRace(){
-        //pushing the current VC to another T(x) --->  X
-        //step one : instance or object declaration
-        let vc = UserProfile()
-        //B obj = new B()
-        vc.view.backgroundColor = UIColor.white
-        //vc.title_lb.text = sign_in.titleLabel?.text
-        //self.present(vc, animated : true)
-                
+    var isPicked : [Bool] = [false,false,false,false,false]
+    @objc func SelectingRace(sender : UIButton) {
+        // implement algorithm to make each button work
+        // check if the button is selected
+        // if yes, then turn other 3s off
+        // turn the currect button on
+        sender.isSelected = true
+        let index = sender.tag
+        for i in 0..<res.count {
+            if i == index {
+                isPicked[i] = true
+                res[i].isSelected = isPicked[i]
+                res[i].backgroundColor = .green
+            }else{
+                isPicked[i] = false
+                res[i].isSelected = isPicked[i]
+                res[i].backgroundColor = .gray
+            }
+        }
+        print(isPicked)
+        print(user_registration)
+        user_registration["Race"] = sender.titleLabel?.text
         
     }
     
@@ -873,6 +832,7 @@ class Add_User : UIViewController {
         tx.isUserInteractionEnabled = true
         tx.layer.borderWidth = 2
         tx.layer.borderColor = UIColor.black.cgColor
+        
         return tx
     }()
     
@@ -881,7 +841,9 @@ class Add_User : UIViewController {
         tx1.isUserInteractionEnabled = true
         tx1.layer.borderWidth = 2
         tx1.layer.borderColor = UIColor.black.cgColor
+        
         return tx1
+        
     }()
     
     let input_box2 : UITextView = {
@@ -889,7 +851,9 @@ class Add_User : UIViewController {
         tx2.isUserInteractionEnabled = true
         tx2.layer.borderWidth = 2
         tx2.layer.borderColor = UIColor.black.cgColor
+        
         return tx2
+        
     }()
     
     private func start3(){
@@ -1020,6 +984,110 @@ class Add_User : UIViewController {
     @objc func handle_D(){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
+        let vc = Main_VC1()
+        vc.email = user_registration["Email"]!
+        vc.name = user_registration["Name"]!
+        vc.race = user_registration["Race"]!
+        vc.password = user_registration["Password"]!
+        //B obj = new B()
+        vc.view.backgroundColor = UIColor.white
+        //vc.title_lb.text = sign_in.titleLabel?.text
+        self.present(vc, animated : true)
+    }
+}
+
+class SelectingAllergens : UIViewController {
+    
+    let allergens : [String] = ["Shellfish", "Egg", "Peanut", "Tree Nuts", "Dairy", "Fish", "Sesame", "Soybean", "Wheat", "Additive", "Seed", "Meat", "Fruit", "Other"]
+
+    lazy var res = SelectAllergen(arr: allergens,
+                                  n: allergens.count,
+                                  c: UIColor.systemBlue,
+                                  s: (view.frame.width/CGFloat(allergens.count)) * 0.85,
+                                  y: 200,
+                                  m: 1.2)
+    
+    override func viewDidLoad(){
+        super.viewDidLoad()
+        start3()
+        for item in res{
+            item.addTarget(self, action: #selector(SelectingAllergen(sender: )), for: .touchUpInside)
+            view.addSubview(item)
+        }
+    }
+    
+    func SelectAllergen(arr : [String], n : Int, c: UIColor, s : CGFloat, y: CGFloat, m: CGFloat)-> [UIButton]{
+        var res = [UIButton]()
+        //design the pattern
+        let y : CGFloat = view.frame.width - 20
+        for i in 0..<n{
+            let bt = UIButton()
+            bt.setTitle(arr[i], for: .normal)
+            let x : CGFloat = Warning.center.y + Warning.frame.height - 120
+            let y : CGFloat = CGFloat(i) * s * 2.5 + 165  //f(x) = ax + b
+            bt.frame = CGRect(x : x, y: y, width: 100, height: 20)
+            bt.setTitleColor(UIColor.black, for: .normal)
+            bt.backgroundColor = UIColor.white
+            res.append(bt)
+            bt.addTarget(self, action: #selector(SelectingAllergen), for : .touchUpInside)
+        }
+        //bt.addTarget(self, action: #selector(SelectingRace), for : .touchUpInside)
+        return res
+    }
+    
+    var isPicked : [Bool] = [false,false,false,false,false]
+    @objc func SelectingAllergen(sender: UIButton){
+        //pushing the current VC to another T(x) --->  X
+        //step one : instance or object declaration
+        let vc = UserProfile()
+        //B obj = new B()
+        vc.view.backgroundColor = UIColor.white
+        //vc.title_lb.text = sign_in.titleLabel?.text
+        //self.present(vc, animated : true)
+        sender.isSelected = true
+        for i in 0..<res.count {
+            if res[i].isSelected == true {
+                isPicked[sender.tag] = true
+                // turn other off
+                // in the mean while change the selected button's background into other color
+                // in the meanwhile, pass the selected information to the final container
+                res[i].backgroundColor = UIColor.systemGreen
+            }else{
+                isPicked[i] = false
+                res[i].backgroundColor = UIColor.systemGray
+            }
+        }
+        print(isPicked)
+                
+        
+    }
+    
+    private let Warning: UILabel = {
+         let warning = UILabel()
+         warning.frame = CGRect (
+            x: 100,
+            y: 100,
+            width: 200,
+            height: 48)
+         warning.numberOfLines = 0
+         warning.textAlignment = .center
+         warning.textColor = UIColor.black
+         warning.font = UIFont.boldSystemFont(ofSize: 24)
+         warning.text = "When it Doubt, Leave it Out"
+         warning.backgroundColor = UIColor.systemYellow
+        
+         
+         return warning
+     }()
+    
+    private func start3(){
+        Warning.frame = CGRect(x : 0, y: 100, width: 400, height: 36 )
+        view.addSubview(Warning)
+    }
+    
+    @objc func handle_D(){
+        //pushing the current VC to another T(x) --->  X
+        //step one : instance or object declaration
         let vc = UserProfile()
         //B obj = new B()
         vc.view.backgroundColor = UIColor.white
@@ -1027,7 +1095,6 @@ class Add_User : UIViewController {
         self.present(vc, animated : true)
         
     }
-    
 }
 
 class UserProfile : UIViewController {
@@ -1081,37 +1148,102 @@ class ReadingTheLabel  : UIViewController{
         }
     }
 }
-extension ViewController: UIDocumentMenuDelegate,UIDocumentPickerDelegate{
-    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        guard let myURL = urls.first else {
-            return
+
+
+/*class Multi_UIResponder : UIViewController {
+    // class variable
+    let races : [String] = ["A","B","L","W","O"]
+    lazy var res = bts(arr: races,
+                  n: races.count,
+                  c: UIColor.systemBlue,
+                  s: (view.frame.width/CGFloat(races.count)) * 0.85,
+                  y: 200,
+                  m: 1.2)
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.frame = CGRect(x: 0, y: 0, width: 400, height: 600)
+        // local variable
+        for item in res {
+            item.addTarget(self, action: #selector(handle_R_Selection(sender: )), for: .touchUpInside)
+            view.addSubview(item)
         }
-        print("import result : \(myURL)")
-        let data = NSData(contentsOf: myURL)
-        do{
-           
-            
-            
-            self.Doc(url: strUrl, docData: try Data(contentsOf: myURL), parameters: ["club_file": "file" as AnyObject], fileName: myURL.lastPathComponent, token: token)
-            self.docText.text = myURL.lastPathComponent
-            
-            //uploadActionDocument(documentURLs: myURL, pdfName: myURL.lastPathComponent)
-        }catch{
-            print(error)
+    }
+    func bts (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
+        var res = [UIButton]()
+        for i in 0..<n {
+            let bt = UIButton()
+            let x : CGFloat = CGFloat(i) * s * m + 10
+            bt.frame = CGRect(x: x, y: y, width: s, height: s)
+            bt.tag = i
+            bt.setTitle(arr[i], for: .normal)
+            bt.backgroundColor = c
+            res.append(bt)
         }
-        
-        
-        
+        return res
     }
-
-
-    public func documentMenu(_ documentMenu:UIDocumentMenuViewController, didPickDocumentPicker documentPicker: UIDocumentPickerViewController) {
-        documentPicker.delegate = self
-        present(documentPicker, animated: true, completion: nil)
-    }
-
-
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        print("view was cancelled")
+    var isPicked : [Bool] = [false,false,false,false,false]
+    @objc func handle_R_Selection(sender : UIButton) {
+        // implement algorithm to make each button work
+        // check if the button is selected
+        // if yes, then turn other 3s off
+        let bt1 = UIButton()
+        let bt2 = UIButton()
+        let bt3 = UIButton()
+        let bt4 = UIButton()
+        let arr = [bt1, bt2,bt3, bt4]
+        // turn the currect button on
+        sender.isSelected = true
+        // selected counter
+        for i in 0..<res.count {
+            if res[i].isSelected == true {
+                isPicked[sender.tag] = true
+                // turn other off
+                // in the mean while change the selected button's background into other color
+                // in the meanwhile, pass the selected information to the final container
+                res[i].backgroundColor = UIColor.systemGreen
+            }else{
+                isPicked[i] = false
+                res[i].backgroundColor = UIColor.systemGray
+            }
+        }
+        print(isPicked)
     }
 }
+
+// final user's information collection---dictionary
+var Users_Account = [Users]()
+var user_1 = ["email" : "", "password" : "", "race" : ""]
+user_1["email"] = "sample@gmail.ocm"
+user_1["password"] = "123456"
+// Classic Example of OOP and Algorithm in App System Design and Development
+class Users {
+    let email : String
+    let password : String
+    let race : String // add other important elements below such as age, potential allergic elements......
+    // initializer or constructor
+    init (email : String, password : String, race : String) {
+        self.email = email
+        self.password = password
+        self.race = race
+    }
+}
+// class object or instance
+    let u1 = Users(email: "user_1@gmail.com", password: "1234567", race: "Asian")
+    let u2 = Users(email: "user_2@gmail.com", password: "1234567", race: "Black")
+    let u3 = Users(email: "user_3@gmail.com", password: "1234567", race: "Latino")
+    let u4 = Users(email: "user_4@gmail.com", password: "1234567", race: "White")
+
+    // when user press the submit registration button
+    Users_Account.append(u1)
+    Users_Account.append(u2)
+    Users_Account.append(u3)
+    Users_Account.append(u4)
+
+print(Users_Account)
+// Three Major Algorithm Principle (sequencing, iteration, selection)
+    for item in Users_Account {
+        if (item.race == "Black") {
+            print(item.email)
+    }
+}*/
