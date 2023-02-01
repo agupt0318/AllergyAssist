@@ -498,7 +498,6 @@ class ScanLabel : UIViewController {
        let arr = mes.split(separator: ", ")
        print(arr)
        var percentage_arr = [String]()
-       return res;
        for item in arr {
            if item.contains("%") {
                percentage_arr.append(String(item))
@@ -520,14 +519,7 @@ class ScanLabel : UIViewController {
            lb.text = String(arr[i])
            view.addSubview(lb)
        }
-       /*for item in mes {
-           for inner in sample_db{
-               if item == Character(inner){
-                   cnt += 1
-               }
-               
-           }
-       }*/
+       return res;
    }
 }
 
@@ -640,10 +632,86 @@ class ScanBarcode : UIViewController {
 
 
 class UserAccountInfo : UIViewController{
+    let vc = RegistrationVC()
+    lazy var user = vc.user
+    let left_margin : CGFloat = 10;
+    let top_margin : CGFloat = 10;
+    lazy var container_height : CGFloat = view.frame.height / 4
+    
+    //user interface
+    lazy var top_container : UIView = {
+        let iv = UIView()
+        iv.frame = CGRect(x : left_margin, y: top_margin, width: view.frame.width - 2 * left_margin, height: container_height)
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 30
+        iv.backgroundColor = UIColor.systemGray
+        return iv
+    }()
+    lazy var middle_container : UIView = {
+        let iv = UIView()
+        iv.frame = CGRect(x : left_margin, y: top_container.center.y + top_container.frame.height / 2 + top_margin, width: view.frame.width - 2 * left_margin, height: container_height)
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 30
+        iv.backgroundColor = UIColor.systemGray
+        return iv
+    }()
+    
+    lazy var bottom_container : UIView = {
+        let iv = UIView()
+        iv.frame = CGRect(x : left_margin, y: middle_container.center.y + middle_container.frame.height / 2 + top_margin, width: view.frame.width - 2 * left_margin, height: container_height)
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 30
+        iv.backgroundColor = UIColor.systemGray
+        
+        let user_profile_image_view = UIImageView()
+        user_profile_image_view.image = UIImage(systemName: "Camera")
+        user_profile_image_view.frame = CGRect(x : left_margin, y: top_margin, width: iv.frame.width/4, height: iv.frame.width/4)
+        user_profile_image_view.clipsToBounds = true
+        user_profile_image_view.backgroundColor = .white
+        user_profile_image_view.layer.cornerRadius = 5
+        
+        let user_name = UILabel()
+        user_name.frame = CGRect(x: left_margin, y: top_margin + user_profile_image_view.center.y + user_profile_image_view.frame.height / 2, width: iv.frame.width / 4, height: 20)
+        user_name.clipsToBounds = true
+        user_name.layer.cornerRadius = 5
+        user_name.font = UIFont.boldSystemFont(ofSize : 18)
+        user_name.backgroundColor = .white
+        user_name.text = String(user.age)
+        DispatchQueue.main.asyncAfter(deadline:
+            DispatchTime.now() + 1) {
+            user_name.text = self.user.name
+        }
+        
+        let user_bio = UILabel()
+        user_bio.frame = CGRect(x: left_margin + user_profile_image_view.center.x + user_profile_image_view.frame.width / 2, y: top_margin, width: 3 * (iv.frame.width / 4) - left_margin * 4, height: 20)
+        user_bio.clipsToBounds = true
+        user_bio.layer.cornerRadius = 5
+        user_bio.font = UIFont.boldSystemFont(ofSize : 18)
+        user_bio.backgroundColor = .white
+        user_bio.text = user.email
+        DispatchQueue.main.asyncAfter(deadline:
+            DispatchTime.now() + 1) {
+            user_bio.text = self.user.email
+        }
+        user_bio.text = user.email
+        
+        iv.addSubview(user_bio)
+        iv.addSubview(user_name)
+        iv.addSubview(user_profile_image_view)
+        
+        return iv
+    }()
+    func setup(){
+        view.addSubview(top_container)
+        view.addSubview(middle_container)
+        view.addSubview(bottom_container)
+    }
+    
     override func viewDidLoad(){
         super.viewDidLoad()
         view.addSubview(AddUser)
-        
+        view.frame = CGRect(x : 0, y: 0, width: 400, height: 600)
+        setup()
         start2()
         
     }
@@ -693,7 +761,7 @@ class UserAccountInfo : UIViewController{
     @objc func handle_C(){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = Add_User()
+        let vc = RegistrationVC()
         //B obj = new B()
         vc.view.backgroundColor = UIColor.white
         //vc.title_lb.text = sign_in.titleLabel?.text
@@ -703,40 +771,86 @@ class UserAccountInfo : UIViewController{
     
 }
 
-class Users {
-    let email : String?
-    let name: String?
-    let race : String?
-    let password : String?
-    
-    init (email: String, name : String, race : String, password : String){
+enum Race{
+    case Asian
+    case Black
+    case Latino
+    case White
+    case Other
+}
+
+class User {
+    var email : String
+    var name : String
+    var age : Int
+    var race : Race
+    init (email : String, name : String, age : Int, race : Race){
         self.email = email
         self.name = name
-        self.race = race
-        self.password = password
+        self.age = age
+        self.race = Race.Other
     }
 }
 
-class Main_VC1 : UIViewController {
+
+class RegistrationVC : UIViewController {
+    let email_input : UITextView = {
+        let tx = UITextView()
+        tx.isUserInteractionEnabled = true
+        tx.layer.borderWidth = 2
+        tx.layer.borderColor = UIColor.black.cgColor
+        
+        return tx
+    }()
     
-    var email = "";
-    var name = "";
-    var race = "";
-    var password = "";
+    let name_input : UITextView = {
+        let tx1 = UITextView()
+        tx1.isUserInteractionEnabled = true
+        tx1.layer.borderWidth = 2
+        tx1.layer.borderColor = UIColor.black.cgColor
+        
+        return tx1
+        
+    }()
     
-    lazy var user = Users(email: email, name: name, race : race, password: password)
-    override func viewDidLoad(){
+    let age_input : UITextView = {
+        let tx2 = UITextView()
+        tx2.isUserInteractionEnabled = true
+        tx2.layer.borderWidth = 2
+        tx2.layer.borderColor = UIColor.black.cgColor
+        
+        return tx2
+        
+    }()
+
+    var user = User(email: "sample@gmail.com", name: "Joe", age: 21, race: Race.Asian)
+    
+    
+    @objc func submit() {
+        //let sampleEmail = "asdasd"
+        //email_input.text = sampleEmail
+        user.email = email_input.text
+        user.name = name_input.text
+        
+        let vc = UserAccountInfo()
+        vc.user = self.user
+        self.present(vc, animated: true)
+    }
+
+    override func viewDidLoad() {
         super.viewDidLoad()
-        print(user.email)
-        print(user.name)
-        print(user.race)
-        print(user.password)
+        view.addSubview(EditButton)
+        view.frame = CGRect(x: 0, y: 0, width: 400, height: 600)
+        /*DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
+            self.work();
+        }*/
+        start3()
+        for item in res {
+            item.addTarget(self, action: #selector(SelectingRace(sender: )), for: .touchUpInside)
+            view.addSubview(item)
+        }
     }
-}
-
-class Add_User : UIViewController {
     
-    var user_registration = ["Email" : "sample", "Password" : "N/A", "Name" : "N/A", "Race" : "N/A"]
     let races = ["Asian", "Black", "Latino", "White", "Other"]
     lazy var res = SelectRace(arr: races,
                               n: races.count,
@@ -745,23 +859,12 @@ class Add_User : UIViewController {
                               y: 200,
                               m: 1.2)
     
-    override func viewDidLoad(){
-        super.viewDidLoad()
-        view.addSubview(EditButton)
-        start3()
-        
-        for item in res {
-            item.addTarget(self, action: #selector(SelectingRace(sender: )), for: .touchUpInside)
-            view.addSubview(item)
-        }
-    }
-    
     let EditButton : UIButton = {
         let EB = UIButton()
         EB.setTitle("Edit", for: .normal)
         EB.backgroundColor = UIColor.systemGreen
         EB.layer.cornerRadius = 10
-        EB.addTarget(self, action: #selector(handle_D), for : .touchUpInside)
+        EB.addTarget(self, action: #selector(submit), for : .touchUpInside)
         
         return EB
         
@@ -772,7 +875,7 @@ class Add_User : UIViewController {
         SB.setTitle("Save", for: .normal)
         SB.backgroundColor = UIColor.systemGreen
         SB.layer.cornerRadius = 10
-        SB.addTarget(self, action: #selector(handle_D), for : .touchUpInside)
+        SB.addTarget(self, action: #selector(submit), for : .touchUpInside)
         
         return SB
         
@@ -811,8 +914,8 @@ class Add_User : UIViewController {
             }
         }
         print(isPicked)
-        print(user_registration)
-        user_registration["Race"] = sender.titleLabel?.text
+        print(user)
+        //user["Race"] = sender.titleLabel?.text
         
     }
     
@@ -821,38 +924,9 @@ class Add_User : UIViewController {
         SUMAP.setTitle("Set Up My Allergen Profile", for: .normal)
         SUMAP.backgroundColor = UIColor.systemGreen
         SUMAP.layer.cornerRadius = 10
-        SUMAP.addTarget(self, action: #selector(handle_D), for : .touchUpInside)
+        SUMAP.addTarget(self, action: #selector(submit), for : .touchUpInside)
         
         return SUMAP
-        
-    }()
-    
-    let input_box : UITextView = {
-        let tx = UITextView()
-        tx.isUserInteractionEnabled = true
-        tx.layer.borderWidth = 2
-        tx.layer.borderColor = UIColor.black.cgColor
-        
-        return tx
-    }()
-    
-    let input_box1 : UITextView = {
-        let tx1 = UITextView()
-        tx1.isUserInteractionEnabled = true
-        tx1.layer.borderWidth = 2
-        tx1.layer.borderColor = UIColor.black.cgColor
-        
-        return tx1
-        
-    }()
-    
-    let input_box2 : UITextView = {
-        let tx2 = UITextView()
-        tx2.isUserInteractionEnabled = true
-        tx2.layer.borderWidth = 2
-        tx2.layer.borderColor = UIColor.black.cgColor
-        
-        return tx2
         
     }()
     
@@ -867,12 +941,12 @@ class Add_User : UIViewController {
         view.addSubview(UserAccount)
         Finalize.frame = CGRect(x : 50, y: 465, width: 300, height: 72 )
         view.addSubview(Finalize)
-        input_box.frame = CGRect(x:45, y: 120, width: 300, height: 30)
-        view.addSubview(input_box)
-        input_box1.frame = CGRect(x:45, y: 180, width: 300, height: 30)
-        view.addSubview(input_box1)
-        input_box2.frame = CGRect(x:45, y: 240, width: 300, height: 30)
-        view.addSubview(input_box2)
+        email_input.frame = CGRect(x:45, y: 120, width: 300, height: 30)
+        view.addSubview(email_input)
+        name_input.frame = CGRect(x:45, y: 180, width: 300, height: 30)
+        view.addSubview(name_input)
+        age_input.frame = CGRect(x:45, y: 240, width: 300, height: 30)
+        view.addSubview(age_input)
         emailAccount.frame = CGRect(x : 50, y: 96, width: 300, height: 24 )
         view.addSubview(emailAccount)
         userName.frame = CGRect(x : 50, y: 156, width: 300, height: 24 )
@@ -882,86 +956,86 @@ class Add_User : UIViewController {
     }
     
     private let UserAccount: UILabel = {
-         let userAccount = UILabel()
-         userAccount.frame = CGRect (
-             x: 100,
-             y: 100,
-             width: 200,
-             height: 48)
-         userAccount.numberOfLines = 0
-         userAccount.textAlignment = .center
-         userAccount.textColor = UIColor.black
-         userAccount.font = UIFont.boldSystemFont(ofSize: 24)
-         userAccount.text = "User Account"
-         userAccount.backgroundColor = UIColor.systemYellow
+        let userAccount = UILabel()
+        userAccount.frame = CGRect (
+            x: 100,
+            y: 100,
+            width: 200,
+            height: 48)
+        userAccount.numberOfLines = 0
+        userAccount.textAlignment = .center
+        userAccount.textColor = UIColor.black
+        userAccount.font = UIFont.boldSystemFont(ofSize: 24)
+        userAccount.text = "User Account"
+        userAccount.backgroundColor = UIColor.systemYellow
         
-         
-         return userAccount
-     }()
+        
+        return userAccount
+    }()
     
     private let emailAccount: UILabel = {
-         let email = UILabel()
-         email.frame = CGRect (
-             x: 100,
-             y: 100,
-             width: 200,
-             height: 48)
-         email.numberOfLines = 0
-         //email.textAlignment = .center
-         email.textColor = UIColor.black
-         email.font = UIFont.boldSystemFont(ofSize: 12)
-         email.text = "Enter Your Email"
-         email.backgroundColor = UIColor.white
+        let email = UILabel()
+        email.frame = CGRect (
+            x: 100,
+            y: 100,
+            width: 200,
+            height: 48)
+        email.numberOfLines = 0
+        //email.textAlignment = .center
+        email.textColor = UIColor.black
+        email.font = UIFont.boldSystemFont(ofSize: 12)
+        email.text = "Enter Your Email"
+        email.backgroundColor = UIColor.white
         
-         
-         return email
-     }()
+        
+        return email
+    }()
     
     private let userName: UILabel = {
-         let username = UILabel()
-         username.frame = CGRect (
-             x: 100,
-             y: 100,
-             width: 200,
-             height: 48)
-         username.numberOfLines = 0
-         //email.textAlignment = .center
-         username.textColor = UIColor.black
-         username.font = UIFont.boldSystemFont(ofSize: 12)
-         username.text = "Enter Your Name"
-         username.backgroundColor = UIColor.white
+        let username = UILabel()
+        username.frame = CGRect (
+            x: 100,
+            y: 100,
+            width: 200,
+            height: 48)
+        username.numberOfLines = 0
+        //email.textAlignment = .center
+        username.textColor = UIColor.black
+        username.font = UIFont.boldSystemFont(ofSize: 12)
+        username.text = "Enter Your Name"
+        username.backgroundColor = UIColor.white
         
-         
-         return username
-     }()
+        
+        return username
+    }()
     
     private let ageString: UILabel = {
-         let age = UILabel()
+        let age = UILabel()
         age.frame = CGRect (
-             x: 100,
-             y: 100,
-             width: 200,
-             height: 48)
+            x: 100,
+            y: 100,
+            width: 200,
+            height: 48)
         age.numberOfLines = 0
-         //email.textAlignment = .center
+        //email.textAlignment = .center
         age.textColor = UIColor.black
         age.font = UIFont.boldSystemFont(ofSize: 12)
         age.text = "Age"
         age.backgroundColor = UIColor.white
         
-         
-         return age
-     }()
+        
+        return age
+    }()
     
-
+    
     
     private let Finalize: UILabel = {
-         let finalize = UILabel()
+        let finalize = UILabel()
         finalize.frame = CGRect (
-             x: 100,
-             y: 100,
-             width: 200,
-             height: 96)
+            x: 100,
+            y: 100,
+            width: 200,
+            height: 96)
         finalize.numberOfLines = 3
         finalize.textAlignment = .center
         finalize.textColor = UIColor.black
@@ -969,9 +1043,9 @@ class Add_User : UIViewController {
         finalize.text = "Finalize your personalized list of ingredients that you eat, limit, and avoid based on your selections."
         finalize.backgroundColor = UIColor.white
         
-         
-         return finalize
-     }()
+        
+        return finalize
+    }()
     
     private let plusSign: UIImageView = {
         let ps = UIImageView()
@@ -981,269 +1055,968 @@ class Add_User : UIViewController {
         return ps
     }()
     
-    @objc func handle_D(){
-        //pushing the current VC to another T(x) --->  X
-        //step one : instance or object declaration
-        let vc = Main_VC1()
-        vc.email = user_registration["Email"]!
-        vc.name = user_registration["Name"]!
-        vc.race = user_registration["Race"]!
-        vc.password = user_registration["Password"]!
-        //B obj = new B()
-        vc.view.backgroundColor = UIColor.white
-        //vc.title_lb.text = sign_in.titleLabel?.text
-        self.present(vc, animated : true)
+class User_Profile_VC : UIViewController{
+        let vc = RegistrationVC()
+        lazy var user = vc.user
+        let left_margin : CGFloat = 10;
+        let top_margin : CGFloat = 10;
+        lazy var container_height : CGFloat = view.frame.height / 4
+        
+        //user interface
+        lazy var top_container : UIView = {
+            let iv = UIView()
+            iv.frame = CGRect(x : left_margin, y: top_margin, width: view.frame.width - 2 * left_margin, height: container_height)
+            iv.clipsToBounds = true
+            iv.layer.cornerRadius = 30
+            iv.backgroundColor = UIColor.systemGray
+            return iv
+        }()
+        lazy var middle_container : UIView = {
+            let iv = UIView()
+            iv.frame = CGRect(x : left_margin, y: top_container.center.y + top_container.frame.height / 2 + top_margin, width: view.frame.width - 2 * left_margin, height: container_height)
+            iv.clipsToBounds = true
+            iv.layer.cornerRadius = 30
+            iv.backgroundColor = UIColor.systemGray
+            return iv
+        }()
+        
+        lazy var bottom_container : UIView = {
+            let iv = UIView()
+            iv.frame = CGRect(x : left_margin, y: middle_container.center.y + middle_container.frame.height / 2 + top_margin, width: view.frame.width - 2 * left_margin, height: container_height)
+            iv.clipsToBounds = true
+            iv.layer.cornerRadius = 30
+            iv.backgroundColor = UIColor.systemGray
+            
+            let user_profile_image_view = UIImageView()
+            user_profile_image_view.image = UIImage(systemName: "Camera")
+            user_profile_image_view.frame = CGRect(x : left_margin, y: top_margin, width: iv.frame.width/4, height: iv.frame.width/4)
+            user_profile_image_view.clipsToBounds = true
+            user_profile_image_view.backgroundColor = .white
+            user_profile_image_view.layer.cornerRadius = 5
+            
+            let user_name = UILabel()
+            user_name.frame = CGRect(x: left_margin, y: top_margin + user_profile_image_view.center.y + user_profile_image_view.frame.height / 2, width: iv.frame.width / 4, height: 20)
+            user_name.clipsToBounds = true
+            user_name.layer.cornerRadius = 5
+            user_name.font = UIFont.boldSystemFont(ofSize : 18)
+            user_name.backgroundColor = .white
+            user_name.text = String(user.age)
+            DispatchQueue.main.asyncAfter(deadline:
+                DispatchTime.now() + 1) {
+                user_name.text = self.user.email
+            }
+            
+            let user_bio = UILabel()
+            user_bio.frame = CGRect(x: left_margin + user_profile_image_view.center.x + user_profile_image_view.frame.width / 2, y: top_margin, width: 3 * (iv.frame.width / 4) - left_margin * 4, height: 20)
+            user_bio.clipsToBounds = true
+            user_bio.layer.cornerRadius = 5
+            user_bio.font = UIFont.boldSystemFont(ofSize : 18)
+            user_bio.backgroundColor = .white
+            user_bio.text = user.name
+            DispatchQueue.main.asyncAfter(deadline:
+                DispatchTime.now() + 1) {
+                user_bio.text = self.user.name
+            }
+            user_bio.text = user.name
+            
+            iv.addSubview(user_bio)
+            iv.addSubview(user_name)
+            iv.addSubview(user_profile_image_view)
+            
+            return iv
+        }()
+        func setup(){
+            view.addSubview(top_container)
+            view.addSubview(middle_container)
+            view.addSubview(bottom_container)
+        }
+        override func viewDidLoad(){
+            super.viewDidLoad()
+            view.frame = CGRect(x : 0, y: 0, width: 400, height: 600)
+            setup()
+        }
     }
-}
-
-class SelectingAllergens : UIViewController {
     
-    let allergens : [String] = ["Shellfish", "Egg", "Peanut", "Tree Nuts", "Dairy", "Fish", "Sesame", "Soybean", "Wheat", "Additive", "Seed", "Meat", "Fruit", "Other"]
 
-    lazy var res = SelectAllergen(arr: allergens,
-                                  n: allergens.count,
+    class Add_User : UIViewController {
+        
+        var user_registration = ["Email" : "sample", "Name" : "N/A", "Age" : "0", "Race" : "N/A"]
+        let races = ["Asian", "Black", "Latino", "White", "Other"]
+        lazy var res = SelectRace(arr: races,
+                                  n: races.count,
                                   c: UIColor.systemBlue,
-                                  s: (view.frame.width/CGFloat(allergens.count)) * 0.85,
+                                  s: (view.frame.width/CGFloat(races.count)) * 0.85,
                                   y: 200,
                                   m: 1.2)
-    
-    override func viewDidLoad(){
-        super.viewDidLoad()
-        start3()
-        for item in res{
-            item.addTarget(self, action: #selector(SelectingAllergen(sender: )), for: .touchUpInside)
-            view.addSubview(item)
-        }
-    }
-    
-    func SelectAllergen(arr : [String], n : Int, c: UIColor, s : CGFloat, y: CGFloat, m: CGFloat)-> [UIButton]{
-        var res = [UIButton]()
-        //design the pattern
-        let y : CGFloat = view.frame.width - 20
-        for i in 0..<n{
-            let bt = UIButton()
-            bt.setTitle(arr[i], for: .normal)
-            let x : CGFloat = Warning.center.y + Warning.frame.height - 120
-            let y : CGFloat = CGFloat(i) * s * 2.5 + 165  //f(x) = ax + b
-            bt.frame = CGRect(x : x, y: y, width: 100, height: 20)
-            bt.setTitleColor(UIColor.black, for: .normal)
-            bt.backgroundColor = UIColor.white
-            res.append(bt)
-            bt.addTarget(self, action: #selector(SelectingAllergen), for : .touchUpInside)
-        }
-        //bt.addTarget(self, action: #selector(SelectingRace), for : .touchUpInside)
-        return res
-    }
-    
-    var isPicked : [Bool] = [false,false,false,false,false]
-    @objc func SelectingAllergen(sender: UIButton){
-        //pushing the current VC to another T(x) --->  X
-        //step one : instance or object declaration
-        let vc = UserProfile()
-        //B obj = new B()
-        vc.view.backgroundColor = UIColor.white
-        //vc.title_lb.text = sign_in.titleLabel?.text
-        //self.present(vc, animated : true)
-        sender.isSelected = true
-        for i in 0..<res.count {
-            if res[i].isSelected == true {
-                isPicked[sender.tag] = true
-                // turn other off
-                // in the mean while change the selected button's background into other color
-                // in the meanwhile, pass the selected information to the final container
-                res[i].backgroundColor = UIColor.systemGreen
-            }else{
-                isPicked[i] = false
-                res[i].backgroundColor = UIColor.systemGray
+        
+        override func viewDidLoad(){
+            super.viewDidLoad()
+            view.addSubview(EditButton)
+            start3()
+            
+            for item in res {
+                item.addTarget(self, action: #selector(SelectingRace(sender: )), for: .touchUpInside)
+                view.addSubview(item)
             }
         }
-        print(isPicked)
-                
         
-    }
-    
-    private let Warning: UILabel = {
-         let warning = UILabel()
-         warning.frame = CGRect (
-            x: 100,
-            y: 100,
-            width: 200,
-            height: 48)
-         warning.numberOfLines = 0
-         warning.textAlignment = .center
-         warning.textColor = UIColor.black
-         warning.font = UIFont.boldSystemFont(ofSize: 24)
-         warning.text = "When it Doubt, Leave it Out"
-         warning.backgroundColor = UIColor.systemYellow
+        let EditButton : UIButton = {
+            let EB = UIButton()
+            EB.setTitle("Edit", for: .normal)
+            EB.backgroundColor = UIColor.systemGreen
+            EB.layer.cornerRadius = 10
+            EB.addTarget(self, action: #selector(submit), for : .touchUpInside)
+            
+            return EB
+            
+        }()
         
-         
-         return warning
-     }()
-    
-    private func start3(){
-        Warning.frame = CGRect(x : 0, y: 100, width: 400, height: 36 )
-        view.addSubview(Warning)
-    }
-    
-    @objc func handle_D(){
-        //pushing the current VC to another T(x) --->  X
-        //step one : instance or object declaration
-        let vc = UserProfile()
-        //B obj = new B()
-        vc.view.backgroundColor = UIColor.white
-        //vc.title_lb.text = sign_in.titleLabel?.text
-        self.present(vc, animated : true)
+        lazy var SaveButton : UIButton = {
+            let SB = UIButton()
+            SB.setTitle("Save", for: .normal)
+            SB.backgroundColor = UIColor.systemGreen
+            SB.layer.cornerRadius = 10
+            SB.addTarget(self, action: #selector(submit), for : .touchUpInside)
+            
+            return SB
+            
+        }()
         
-    }
-}
-
-class UserProfile : UIViewController {
-    override func viewDidLoad(){
-        super.viewDidLoad()
-        //view.addSubview(AddUser)
-        
-        //start3()
-        
-    }
-}
-
-class ReadingTheLabel  : UIViewController{
-    override func viewDidLoad(){
-        super.viewDidLoad()
-        title_lb.frame = CGRect(x : 10, y: 60, width : 120, height: 48)
-        title_lb.textAlignment =  .center
-        view.addSubview(title_lb)
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2){
-            self.start()
+        func SelectRace (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
+            var res = [UIButton]()
+            for i in 0..<n {
+                let bt = UIButton()
+                let x : CGFloat = CGFloat(i) * s * m + 10
+                bt.frame = CGRect(x: x, y: y+100, width: s, height: s)
+                bt.tag = i
+                bt.setTitle(arr[i], for: .normal)
+                bt.backgroundColor = c
+                res.append(bt)
+            }
+            return res
         }
-    }
-    let title_lb = UILabel()
-    var display_bars = [UIButton]()
-    var data_from_main : Int = 0
-    var data_string_from_main : [String]?
-    
-    func iterate(n : Int, arr : [String])-> [UIButton]{
-        var res = [UIButton]()
-        //design the pattern
-        let w : CGFloat = view.frame.width - 20
-        let size : CGFloat = 24
-        for i in 0..<n{
-            let bt = UIButton()
-            let length : CGFloat = CGFloat(arr[i].count) * size * 1.2
-            bt.setTitle(arr[i], for: .normal)
-            let x : CGFloat = 10
-            let y : CGFloat = CGFloat(i) * size * 1.2 + 60 //f(x) = ax + b
-            bt.frame = CGRect(x : x, y: y, width: w, height: size)
-            bt.setTitleColor(UIColor.black, for: .normal)
-            bt.backgroundColor = UIColor.systemGray
-            res.append(bt)
+        var isPicked : [Bool] = [false,false,false,false,false]
+        @objc func SelectingRace(sender : UIButton) {
+            // implement algorithm to make each button work
+            // check if the button is selected
+            // if yes, then turn other 3s off
+            // turn the currect button on
+            sender.isSelected = true
+            let index = sender.tag
+            for i in 0..<res.count {
+                if i == index {
+                    isPicked[i] = true
+                    res[i].isSelected = isPicked[i]
+                    res[i].backgroundColor = .green
+                }else{
+                    isPicked[i] = false
+                    res[i].isSelected = isPicked[i]
+                    res[i].backgroundColor = .gray
+                }
+            }
+            print(isPicked)
+            print(user_registration)
+            user_registration["Race"] = sender.titleLabel?.text
+            
         }
-        return res
+        
+        let SetUpMyAllergenProfile : UIButton = {
+            let SUMAP = UIButton()
+            SUMAP.setTitle("Set Up My Allergen Profile", for: .normal)
+            SUMAP.backgroundColor = UIColor.systemGreen
+            SUMAP.layer.cornerRadius = 10
+            SUMAP.addTarget(self, action: #selector(submit), for : .touchUpInside)
+            
+            return SUMAP
+            
+        }()
+        
+        let input_box : UITextView = {
+            let tx = UITextView()
+            tx.isUserInteractionEnabled = true
+            tx.layer.borderWidth = 2
+            tx.layer.borderColor = UIColor.black.cgColor
+            
+            return tx
+        }()
+        
+        let input_box1 : UITextView = {
+            let tx1 = UITextView()
+            tx1.isUserInteractionEnabled = true
+            tx1.layer.borderWidth = 2
+            tx1.layer.borderColor = UIColor.black.cgColor
+            
+            return tx1
+            
+        }()
+        
+        let input_box2 : UITextView = {
+            let tx2 = UITextView()
+            tx2.isUserInteractionEnabled = true
+            tx2.layer.borderWidth = 2
+            tx2.layer.borderColor = UIColor.black.cgColor
+            
+            return tx2
+            
+        }()
+        
+        private func start3(){
+            EditButton.frame = CGRect(x : 125, y: 400, width: 50, height: 36 )
+            view.addSubview(EditButton)
+            SaveButton.frame = CGRect(x : 225, y: 400, width: 50, height: 36 )
+            view.addSubview(SaveButton)
+            SetUpMyAllergenProfile.frame = CGRect(x : 75, y: 575, width : 250, height : 36)
+            view.addSubview(SetUpMyAllergenProfile)
+            UserAccount.frame = CGRect(x : 0, y: 50, width: 400, height: 36 )
+            view.addSubview(UserAccount)
+            Finalize.frame = CGRect(x : 50, y: 465, width: 300, height: 72 )
+            view.addSubview(Finalize)
+            input_box.frame = CGRect(x:45, y: 120, width: 300, height: 30)
+            view.addSubview(input_box)
+            input_box1.frame = CGRect(x:45, y: 180, width: 300, height: 30)
+            view.addSubview(input_box1)
+            input_box2.frame = CGRect(x:45, y: 240, width: 300, height: 30)
+            view.addSubview(input_box2)
+            emailAccount.frame = CGRect(x : 50, y: 96, width: 300, height: 24 )
+            view.addSubview(emailAccount)
+            userName.frame = CGRect(x : 50, y: 156, width: 300, height: 24 )
+            view.addSubview(userName)
+            ageString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
+            view.addSubview(ageString)
+        }
+        
+        private let UserAccount: UILabel = {
+            let userAccount = UILabel()
+            userAccount.frame = CGRect (
+                x: 100,
+                y: 100,
+                width: 200,
+                height: 48)
+            userAccount.numberOfLines = 0
+            userAccount.textAlignment = .center
+            userAccount.textColor = UIColor.black
+            userAccount.font = UIFont.boldSystemFont(ofSize: 24)
+            userAccount.text = "User Account"
+            userAccount.backgroundColor = UIColor.systemYellow
+            
+            
+            return userAccount
+        }()
+        
+        private let emailAccount: UILabel = {
+            let email = UILabel()
+            email.frame = CGRect (
+                x: 100,
+                y: 100,
+                width: 200,
+                height: 48)
+            email.numberOfLines = 0
+            //email.textAlignment = .center
+            email.textColor = UIColor.black
+            email.font = UIFont.boldSystemFont(ofSize: 12)
+            email.text = "Enter Your Email"
+            email.backgroundColor = UIColor.white
+            
+            
+            return email
+        }()
+        
+        private let userName: UILabel = {
+            let username = UILabel()
+            username.frame = CGRect (
+                x: 100,
+                y: 100,
+                width: 200,
+                height: 48)
+            username.numberOfLines = 0
+            //email.textAlignment = .center
+            username.textColor = UIColor.black
+            username.font = UIFont.boldSystemFont(ofSize: 12)
+            username.text = "Enter Your Name"
+            username.backgroundColor = UIColor.white
+            
+            
+            return username
+        }()
+        
+        private let ageString: UILabel = {
+            let age = UILabel()
+            age.frame = CGRect (
+                x: 100,
+                y: 100,
+                width: 200,
+                height: 48)
+            age.numberOfLines = 0
+            //email.textAlignment = .center
+            age.textColor = UIColor.black
+            age.font = UIFont.boldSystemFont(ofSize: 12)
+            age.text = "Age"
+            age.backgroundColor = UIColor.white
+            
+            
+            return age
+        }()
+        
+        
+        
+        private let Finalize: UILabel = {
+            let finalize = UILabel()
+            finalize.frame = CGRect (
+                x: 100,
+                y: 100,
+                width: 200,
+                height: 96)
+            finalize.numberOfLines = 3
+            finalize.textAlignment = .center
+            finalize.textColor = UIColor.black
+            finalize.font = UIFont.boldSystemFont(ofSize: 18)
+            finalize.text = "Finalize your personalized list of ingredients that you eat, limit, and avoid based on your selections."
+            finalize.backgroundColor = UIColor.white
+            
+            
+            return finalize
+        }()
+        
+        private let plusSign: UIImageView = {
+            let ps = UIImageView()
+            ps.image = UIImage(named: "Cover")
+            
+            ps.contentMode = .scaleAspectFit
+            return ps
+        }()
     }
-    func start(){
-        display_bars = iterate(n : data_from_main, arr : data_string_from_main!)
-        for item in display_bars {
-            view.addSubview(item)
+/*---------------------------------------------------------------------------------------------------------*/
+    class SelectingAllergens : UIViewController {
+        
+        let allergens : [String] = ["Shellfish", "Egg", "Peanut", "Tree Nuts", "Dairy", "Fish", "Sesame", "Soybean", "Wheat", "Additive", "Seed", "Meat", "Fruit", "Other"]
+        
+        lazy var res = SelectAllergen(arr: allergens,
+                                      n: allergens.count,
+                                      c: UIColor.systemBlue,
+                                      s: (view.frame.width/CGFloat(allergens.count)) * 0.85,
+                                      y: 200,
+                                      m: 1.2)
+        
+        override func viewDidLoad(){
+            super.viewDidLoad()
+            start3()
+            for item in res{
+                item.addTarget(self, action: #selector(SelectingAllergen(sender: )), for: .touchUpInside)
+                view.addSubview(item)
+            }
+        }
+        
+        func SelectAllergen(arr : [String], n : Int, c: UIColor, s : CGFloat, y: CGFloat, m: CGFloat)-> [UIButton]{
+            var res = [UIButton]()
+            //design the pattern
+            let y : CGFloat = view.frame.width - 20
+            for i in 0..<n{
+                let bt = UIButton()
+                bt.setTitle(arr[i], for: .normal)
+                let x : CGFloat = Warning.center.y + Warning.frame.height - 120
+                let y : CGFloat = CGFloat(i) * s * 2.5 + 165  //f(x) = ax + b
+                bt.frame = CGRect(x : x, y: y, width: 100, height: 20)
+                bt.setTitleColor(UIColor.black, for: .normal)
+                bt.backgroundColor = UIColor.white
+                res.append(bt)
+                bt.addTarget(self, action: #selector(SelectingAllergen), for : .touchUpInside)
+            }
+            //bt.addTarget(self, action: #selector(SelectingRace), for : .touchUpInside)
+            return res
+        }
+        
+        var isPicked : [Bool] = [false,false,false,false,false]
+        @objc func SelectingAllergen(sender: UIButton){
+            //pushing the current VC to another T(x) --->  X
+            //step one : instance or object declaration
+            let vc = UserProfile()
+            //B obj = new B()
+            vc.view.backgroundColor = UIColor.white
+            //vc.title_lb.text = sign_in.titleLabel?.text
+            //self.present(vc, animated : true)
+            sender.isSelected = true
+            for i in 0..<res.count {
+                if res[i].isSelected == true {
+                    isPicked[sender.tag] = true
+                    // turn other off
+                    // in the mean while change the selected button's background into other color
+                    // in the meanwhile, pass the selected information to the final container
+                    res[i].backgroundColor = UIColor.systemGreen
+                }else{
+                    isPicked[i] = false
+                    res[i].backgroundColor = UIColor.systemGray
+                }
+            }
+            print(isPicked)
+            
+            
+        }
+        
+        private let Warning: UILabel = {
+            let warning = UILabel()
+            warning.frame = CGRect (
+                x: 100,
+                y: 100,
+                width: 200,
+                height: 48)
+            warning.numberOfLines = 0
+            warning.textAlignment = .center
+            warning.textColor = UIColor.black
+            warning.font = UIFont.boldSystemFont(ofSize: 24)
+            warning.text = "When it Doubt, Leave it Out"
+            warning.backgroundColor = UIColor.systemYellow
+            
+            
+            return warning
+        }()
+        
+        private func start3(){
+            Warning.frame = CGRect(x : 0, y: 100, width: 400, height: 36 )
+            view.addSubview(Warning)
+        }
+        
+        @objc func handle_D(){
+            //pushing the current VC to another T(x) --->  X
+            //step one : instance or object declaration
+            let vc = UserProfile()
+            //B obj = new B()
+            vc.view.backgroundColor = UIColor.white
+            //vc.title_lb.text = sign_in.titleLabel?.text
+            self.present(vc, animated : true)
             
         }
     }
-}
-
-
-/*class Multi_UIResponder : UIViewController {
-    // class variable
-    let races : [String] = ["A","B","L","W","O"]
-    lazy var res = bts(arr: races,
-                  n: races.count,
-                  c: UIColor.systemBlue,
-                  s: (view.frame.width/CGFloat(races.count)) * 0.85,
-                  y: 200,
-                  m: 1.2)
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.frame = CGRect(x: 0, y: 0, width: 400, height: 600)
-        // local variable
-        for item in res {
-            item.addTarget(self, action: #selector(handle_R_Selection(sender: )), for: .touchUpInside)
-            view.addSubview(item)
+    class UserProfile : UIViewController {
+        override func viewDidLoad(){
+            super.viewDidLoad()
+            //view.addSubview(AddUser)
+            
+            //start3()
+            
         }
     }
-    func bts (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
-        var res = [UIButton]()
-        for i in 0..<n {
-            let bt = UIButton()
-            let x : CGFloat = CGFloat(i) * s * m + 10
-            bt.frame = CGRect(x: x, y: y, width: s, height: s)
-            bt.tag = i
-            bt.setTitle(arr[i], for: .normal)
-            bt.backgroundColor = c
-            res.append(bt)
-        }
-        return res
-    }
-    var isPicked : [Bool] = [false,false,false,false,false]
-    @objc func handle_R_Selection(sender : UIButton) {
-        // implement algorithm to make each button work
-        // check if the button is selected
-        // if yes, then turn other 3s off
-        let bt1 = UIButton()
-        let bt2 = UIButton()
-        let bt3 = UIButton()
-        let bt4 = UIButton()
-        let arr = [bt1, bt2,bt3, bt4]
-        // turn the currect button on
-        sender.isSelected = true
-        // selected counter
-        for i in 0..<res.count {
-            if res[i].isSelected == true {
-                isPicked[sender.tag] = true
-                // turn other off
-                // in the mean while change the selected button's background into other color
-                // in the meanwhile, pass the selected information to the final container
-                res[i].backgroundColor = UIColor.systemGreen
-            }else{
-                isPicked[i] = false
-                res[i].backgroundColor = UIColor.systemGray
+    
+    class ReadingTheLabel  : UIViewController{
+        override func viewDidLoad(){
+            super.viewDidLoad()
+            title_lb.frame = CGRect(x : 10, y: 60, width : 120, height: 48)
+            title_lb.textAlignment =  .center
+            view.addSubview(title_lb)
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2){
+                self.start()
             }
         }
-        print(isPicked)
+        let title_lb = UILabel()
+        var display_bars = [UIButton]()
+        var data_from_main : Int = 0
+        var data_string_from_main : [String]?
+        
+        func iterate(n : Int, arr : [String])-> [UIButton]{
+            var res = [UIButton]()
+            //design the pattern
+            let w : CGFloat = view.frame.width - 20
+            let size : CGFloat = 24
+            for i in 0..<n{
+                let bt = UIButton()
+                let length : CGFloat = CGFloat(arr[i].count) * size * 1.2
+                bt.setTitle(arr[i], for: .normal)
+                let x : CGFloat = 10
+                let y : CGFloat = CGFloat(i) * size * 1.2 + 60 //f(x) = ax + b
+                bt.frame = CGRect(x : x, y: y, width: w, height: size)
+                bt.setTitleColor(UIColor.black, for: .normal)
+                bt.backgroundColor = UIColor.systemGray
+                res.append(bt)
+            }
+            return res
+        }
+        func start(){
+            display_bars = iterate(n : data_from_main, arr : data_string_from_main!)
+            for item in display_bars {
+                view.addSubview(item)
+                
+            }
+        }
     }
+    
+    class myAllergens: UIViewController {
+        
+        let allergens : [[String]] = [["Shellfish","+"],
+                                      ["Egg",""],
+                                      ["Peanut",""],
+                                      ["Tree Nuts","+"],
+                                      ["Dairy",""],
+                                      ["Fish",""],
+                                      ["Sesame",""],
+                                      ["Soybean",""],
+                                      ["Wheat",""],
+                                      ["Additive","+"],
+                                      ["Seed","+"],
+                                      ["Meat","+"],
+                                      ["Fruit","+"],
+                                      ["Other","+"]]
+        let pageTitle = UILabel()
+        let warning = UILabel()
+        let segmentItems = ["Avoid", "Limit this", "Can eat"]
+        let scrollView = UIScrollView()
+        let eggRow: UIStackView = {
+            let eggRow = UIStackView()
+            let eggRowlb = UILabel()
+            eggRowlb.font = UIFont.boldSystemFont(ofSize: 20)
+            eggRowlb.backgroundColor = UIColor.white
+            eggRowlb.textColor = UIColor.black
+            eggRowlb.textAlignment = .left
+            eggRowlb.text = "Egg"
+            eggRow.addArrangedSubview(eggRowlb)
+            let bt0 = UIButton()
+            bt0.setTitle("", for: .normal)
+            eggRow.addArrangedSubview(bt0)
+            eggRow.setCustomSpacing(5, after: bt0)
+            let segmentItems = ["Avoid", "Limit this", "Can eat"]
+            let control = UISegmentedControl(items: segmentItems)
+            control.frame = CGRect(x: 5, y: 0, width: 240, height: 30)
+            control.addTarget(myAllergens.self, action: #selector(segmentControl(_:)), for: .valueChanged)
+            control.selectedSegmentIndex = 0
+            eggRow.addArrangedSubview(control)
+            //        let bt1 = UIButton()
+            //        bt1.setTitle("Avoid", for: .normal)
+            //        bt1.setTitleColor(.blue, for: .normal)
+            //        bt1.layer.borderWidth = 1
+            //        bt1.addTarget(myAllergens.self, action: #selector(shellfishDetail), for: .touchUpInside)
+            //        eggRow.addArrangedSubview(bt1)
+            //        let bt2 = UIButton()
+            //        bt2.setTitle("Limit this", for: .normal)
+            //        bt2.setTitleColor(.blue, for: .normal)
+            //        bt2.layer.borderWidth = 1
+            //        bt2.addTarget(myAllergens.self, action: #selector(shellfishDetail), for: .touchUpInside)
+            //        eggRow.addArrangedSubview(bt2)
+            //        let bt3 = UIButton()
+            //        bt3.setTitle("Can eat", for: .normal)
+            //        bt3.setTitleColor(.blue, for: .normal)
+            //        bt3.layer.borderWidth = 1
+            //        bt3.addTarget(myAllergens.self, action: #selector(shellfishDetail), for: .touchUpInside)
+            //        eggRow.addArrangedSubview(bt3)
+            NSLayoutConstraint.activate([
+                eggRowlb.widthAnchor.constraint(equalToConstant: 90.0),
+                eggRowlb.heightAnchor.constraint(equalToConstant: 30.0),
+            ])
+            NSLayoutConstraint.activate([
+                bt0.widthAnchor.constraint(equalToConstant: 30.0),
+                bt0.heightAnchor.constraint(equalToConstant: 30.0),
+            ])
+            NSLayoutConstraint.activate([
+                control.widthAnchor.constraint(equalToConstant: 240.0),
+                control.heightAnchor.constraint(equalToConstant: 30.0),
+            ])
+            //        NSLayoutConstraint.activate([
+            //            bt1.widthAnchor.constraint(equalToConstant: 80.0),
+            //            bt1.heightAnchor.constraint(equalToConstant: 30.0),
+            //        ])
+            //        NSLayoutConstraint.activate([
+            //            bt2.widthAnchor.constraint(equalToConstant: 80.0),
+            //            bt2.heightAnchor.constraint(equalToConstant: 30.0),
+            //        ])
+            //        NSLayoutConstraint.activate([
+            //            bt3.widthAnchor.constraint(equalToConstant: 80.0),
+            //            bt3.heightAnchor.constraint(equalToConstant: 30.0),
+            //        ])
+            return eggRow
+        }()
+        
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            // Do any additional setup after loading the view.
+            view.backgroundColor = UIColor.white
+            //setup layout
+            pageTitle.font = UIFont.boldSystemFont(ofSize: 25)
+            pageTitle.backgroundColor = UIColor.white
+            pageTitle.textColor = UIColor.black
+            pageTitle.textAlignment = .center
+            pageTitle.text = "My Allergens"
+            warning.font = UIFont.boldSystemFont(ofSize: 25)
+            warning.backgroundColor = UIColor.yellow
+            warning.textColor = UIColor.red
+            warning.textAlignment = .center
+            warning.text = "Leave it if you are not sure!!!"
+            
+            // create a vertical stack view to hold the rows of buttons
+            let verticalStackView = UIStackView()
+            verticalStackView.axis = .vertical
+            
+            // we're going to use auto-layout
+            pageTitle.translatesAutoresizingMaskIntoConstraints = false
+            warning.translatesAutoresizingMaskIntoConstraints = false
+            scrollView.translatesAutoresizingMaskIntoConstraints = false
+            verticalStackView.translatesAutoresizingMaskIntoConstraints = false
+            
+            // add label to view
+            view.addSubview(pageTitle)
+            view.addSubview(warning)
+            
+            // add Scrollview to view
+            self.view.addSubview(scrollView)
+            
+            // add stack view to scrollView
+            scrollView.addSubview(verticalStackView)
+            
+            for i in 0..<allergens.count{
+                // add row
+                let row = UIStackView()
+                // add it to the vertical stack view
+                verticalStackView.addArrangedSubview(row)
+                verticalStackView.setCustomSpacing(15, after: row)
+                let lb = UILabel()
+                lb.font = UIFont.boldSystemFont(ofSize: 20)
+                lb.backgroundColor = UIColor.white
+                lb.textColor = UIColor.black
+                lb.textAlignment = .left
+                lb.text = allergens[i][0]
+                row.addArrangedSubview(lb)
+                row.setCustomSpacing(5, after: lb)
+                NSLayoutConstraint.activate([
+                    lb.widthAnchor.constraint(equalToConstant: 90.0),
+                    lb.heightAnchor.constraint(equalToConstant: 30.0),
+                ])
+                
+                let bt0 = UIButton()
+                if allergens[i][1]=="+"{
+                    bt0.setTitle(allergens[i][1], for: .normal)
+                    bt0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 30)
+                    //                bt0.frame = CGRectMake(0, 0, 20, 20)
+                    //                bt0.clipsToBounds = true
+                    bt0.layer.cornerRadius = 15
+                    bt0.backgroundColor = .systemGreen
+                    bt0.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
+                }
+                row.addArrangedSubview(bt0)
+                row.setCustomSpacing(5, after: bt0)
+                NSLayoutConstraint.activate([
+                    bt0.widthAnchor.constraint(equalToConstant: 30.0),
+                    bt0.heightAnchor.constraint(equalToConstant: 30.0),
+                ])
+                
+                let bt1 = UIButton()
+                bt1.setTitle("Avoid", for: .normal)
+                bt1.layer.borderWidth = 1
+                bt1.setTitleColor(.blue, for: .normal)
+                bt1.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
+                row.addArrangedSubview(bt1)
+                NSLayoutConstraint.activate([
+                    bt1.widthAnchor.constraint(equalToConstant: 80.0),
+                    bt1.heightAnchor.constraint(equalToConstant: 30.0),
+                ])
+                
+                let bt2 = UIButton()
+                bt2.setTitle("Limit this", for: .normal)
+                bt2.layer.borderWidth = 1
+                bt2.setTitleColor(.blue, for: .normal)
+                bt2.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
+                row.addArrangedSubview(bt2)
+                NSLayoutConstraint.activate([
+                    bt2.widthAnchor.constraint(equalToConstant: 80.0),
+                    bt2.heightAnchor.constraint(equalToConstant: 30.0),
+                ])
+                
+                let bt3 = UIButton()
+                bt3.setTitle("Can eat", for: .normal)
+                bt3.layer.borderWidth = 1
+                bt3.setTitleColor(.blue, for: .normal)
+                bt3.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
+                row.addArrangedSubview(bt3)
+                NSLayoutConstraint.activate([
+                    bt3.widthAnchor.constraint(equalToConstant: 80.0),
+                    bt3.heightAnchor.constraint(equalToConstant: 30.0),
+                ])
+            }
+            
+            //        // add shellfish row
+            //        let shellfishrow = UIStackView()
+            //        // add it to the vertical stack view
+            //        verticalStackView.addArrangedSubview(shellfishrow)
+            //        let shellfishlb = UILabel()
+            //        shellfishlb.font = UIFont.boldSystemFont(ofSize: 20)
+            //        shellfishlb.backgroundColor = UIColor.white
+            //        shellfishlb.textColor = UIColor.black
+            //        shellfishlb.textAlignment = .left
+            //        shellfishlb.text = "Shellfish"
+            //        shellfishrow.addArrangedSubview(shellfishlb)
+            //        NSLayoutConstraint.activate([
+            //            shellfishlb.widthAnchor.constraint(equalToConstant: 90.0),
+            //            shellfishlb.heightAnchor.constraint(equalToConstant: 30.0),
+            //        ])
+            //
+            //        let sf_bt0 = UIButton()
+            //        sf_bt0.setTitle("+", for: .normal)
+            //        sf_bt0.layer.cornerRadius = 15
+            //        sf_bt0.backgroundColor = .green
+            //        sf_bt0.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
+            //        shellfishrow.addArrangedSubview(sf_bt0)
+            //        shellfishrow.setCustomSpacing(5, after: sf_bt0)
+            //        NSLayoutConstraint.activate([
+            //            sf_bt0.widthAnchor.constraint(equalToConstant: 30.0),
+            //            sf_bt0.heightAnchor.constraint(equalToConstant: 30.0),
+            //        ])
+            //
+            //        let sf_bt1 = UIButton()
+            //        sf_bt1.setTitle("Avoid", for: .normal)
+            //        sf_bt1.layer.borderWidth = 1
+            //        sf_bt1.setTitleColor(.blue, for: .normal)
+            //        sf_bt1.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
+            //        shellfishrow.addArrangedSubview(sf_bt1)
+            //        NSLayoutConstraint.activate([
+            //            sf_bt1.widthAnchor.constraint(equalToConstant: 80.0),
+            //            sf_bt1.heightAnchor.constraint(equalToConstant: 30.0),
+            //        ])
+            //
+            //        let sf_bt2 = UIButton()
+            //        sf_bt2.setTitle("Limit this", for: .normal)
+            //        sf_bt2.layer.borderWidth = 1
+            //        sf_bt2.setTitleColor(.blue, for: .normal)
+            //        sf_bt2.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
+            //        shellfishrow.addArrangedSubview(sf_bt2)
+            //        NSLayoutConstraint.activate([
+            //            sf_bt2.widthAnchor.constraint(equalToConstant: 80.0),
+            //            sf_bt2.heightAnchor.constraint(equalToConstant: 30.0),
+            //        ])
+            //
+            //        let sf_bt3 = UIButton()
+            //        sf_bt3.setTitle("Can eat", for: .normal)
+            //        sf_bt3.layer.borderWidth = 1
+            //        sf_bt3.setTitleColor(.blue, for: .normal)
+            //        sf_bt3.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
+            //        shellfishrow.addArrangedSubview(sf_bt3)
+            //        NSLayoutConstraint.activate([
+            //            sf_bt3.widthAnchor.constraint(equalToConstant: 80.0),
+            //            sf_bt3.heightAnchor.constraint(equalToConstant: 30.0),
+            //        ])
+            
+            verticalStackView.addArrangedSubview(eggRow)
+            
+            // finally, let's set our constraints
+            // respect safe-area
+            let safeG = view.safeAreaLayoutGuide
+            NSLayoutConstraint.activate([
+                // constrain label
+                //  50-pts from top
+                //  80% of the width
+                pageTitle.topAnchor.constraint(equalTo: safeG.topAnchor, constant: 0.0),
+                pageTitle.widthAnchor.constraint(equalTo: safeG.widthAnchor, multiplier: 0.5),
+                pageTitle.leftAnchor.constraint(equalTo: safeG.leftAnchor, constant: 10.0),
+                // constrain label
+                //  50-pts from top
+                //  80% of the width
+                //  centered horizontally
+                warning.topAnchor.constraint(equalTo: pageTitle.bottomAnchor, constant: 5.0),
+                warning.widthAnchor.constraint(equalTo: safeG.widthAnchor, multiplier: 0.95),
+                warning.centerXAnchor.constraint(equalTo: safeG.centerXAnchor),
+                // constrain scrollView
+                //  10-pts from bottom of label
+                //  Leading and Trailing to safe-area with 10-pts "padding"
+                //  Bottom to safe-area with 50-pts "padding"
+                scrollView.topAnchor.constraint(equalTo: warning.bottomAnchor, constant: 10.0),
+                scrollView.leadingAnchor.constraint(equalTo: safeG.leadingAnchor, constant: 5.0),
+                scrollView.trailingAnchor.constraint(equalTo: safeG.trailingAnchor, constant: -5.0),
+                scrollView.bottomAnchor.constraint(equalTo: safeG.bottomAnchor, constant: -75.0),
+                
+                // constrain vertical stack view to scrollView Content Layout Guide
+                //  8-pts all around (so we have a little "padding")
+                verticalStackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 5.0),
+                verticalStackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 5.0),
+                verticalStackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -5.0),
+                verticalStackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -5.0),
+                
+            ])
+            //method call
+            edit_pf()
+            save_pf()
+            navi()
+        }
+        
+        //method declaration
+        private func edit_pf(){
+            edit_pf_bt.frame = CGRect(x: 250, y: 55, width: 50, height: 30)
+            edit_pf_bt.layer.cornerRadius = 10
+            edit_pf_bt.layer.masksToBounds = true
+            edit_pf_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
+            view.addSubview(edit_pf_bt)
+        }
+        
+        private func save_pf(){
+            save_pf_bt.frame = CGRect(x: 330, y: 55, width: 50, height: 30)
+            save_pf_bt.layer.cornerRadius = 10
+            save_pf_bt.layer.masksToBounds = true
+            save_pf_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
+            view.addSubview(save_pf_bt)
+        }
+        
+        private func navi(){
+            home_bt.frame = CGRect(x: 30, y: 750, width: 100, height: 30)
+            home_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
+            view.addSubview(home_bt)
+            scan_bt.frame = CGRect(x: 150, y: 750, width: 100, height: 30)
+            scan_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
+            view.addSubview(scan_bt)
+            setting_bt.frame = CGRect(x: 270, y: 750, width: 100, height: 30)
+            setting_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
+            view.addSubview(setting_bt)
+        }
+        
+        @objc func h1(sender : UIButton){
+            let vc = Main_VC()
+            vc.modalPresentationStyle = .fullScreen
+            self.present(vc, animated: true)
+        }
+        
+        let edit_pf_bt : UIButton = {
+            let bt = UIButton()
+            bt.setTitle("Edit", for: .normal)
+            bt.backgroundColor = UIColor.systemBlue
+            return bt
+        }()
+        
+        let save_pf_bt : UIButton = {
+            let bt = UIButton()
+            bt.setTitle("Save", for: .normal)
+            bt.backgroundColor = UIColor.systemBlue
+            return bt
+        }()
+        
+        let home_bt : UIButton = {
+            let bt = UIButton()
+            bt.setTitle("Home", for: .normal)
+            bt.backgroundColor = UIColor.systemGray
+            return bt
+        }()
+        
+        let scan_bt : UIButton = {
+            let bt = UIButton()
+            bt.setTitle("Scan", for: .normal)
+            bt.backgroundColor = UIColor.systemGray
+            return bt
+        }()
+        
+        let setting_bt : UIButton = {
+            let bt = UIButton()
+            bt.setTitle("Setting", for: .normal)
+            bt.backgroundColor = UIColor.systemGray
+            return bt
+        }()
+        
+        @objc func shellfishDetail(sender: UIButton!) {
+            warning.text = sender.title(for: .normal)
+        }
+        @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
+            switch (segmentedControl.selectedSegmentIndex) {
+            case 0:
+                break
+            case 1:
+                break
+            case 2:
+                break
+            default:
+                break
+            }
+        }
+    }
+    
+    
+    /*class Multi_UIResponder : UIViewController {
+     // class variable
+     let races : [String] = ["A","B","L","W","O"]
+     lazy var res = bts(arr: races,
+     n: races.count,
+     c: UIColor.systemBlue,
+     s: (view.frame.width/CGFloat(races.count)) * 0.85,
+     y: 200,
+     m: 1.2)
+     
+     override func viewDidLoad() {
+     super.viewDidLoad()
+     view.frame = CGRect(x: 0, y: 0, width: 400, height: 600)
+     // local variable
+     for item in res {
+     item.addTarget(self, action: #selector(handle_R_Selection(sender: )), for: .touchUpInside)
+     view.addSubview(item)
+     }
+     }
+     func bts (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
+     var res = [UIButton]()
+     for i in 0..<n {
+     let bt = UIButton()
+     let x : CGFloat = CGFloat(i) * s * m + 10
+     bt.frame = CGRect(x: x, y: y, width: s, height: s)
+     bt.tag = i
+     bt.setTitle(arr[i], for: .normal)
+     bt.backgroundColor = c
+     res.append(bt)
+     }
+     return res
+     }
+     
+     var isPicked : [Bool] = [false,false,false,false,false]
+     @objc func handle_R_Selection(sender : UIButton) {
+     // implement algorithm to make each button work
+     // check if the button is selected
+     // if yes, then turn other 3s off
+     let bt1 = UIButton()
+     let bt2 = UIButton()
+     let bt3 = UIButton()
+     let bt4 = UIButton()
+     let arr = [bt1, bt2,bt3, bt4]
+     // turn the currect button on
+     sender.isSelected = true
+     // selected counter
+     for i in 0..<res.count {
+     if res[i].isSelected == true {
+     isPicked[sender.tag] = true
+     // turn other off
+     // in the mean while change the selected button's background into other color
+     // in the meanwhile, pass the selected information to the final container
+     res[i].backgroundColor = UIColor.systemGreen
+     }else{
+     isPicked[i] = false
+     res[i].backgroundColor = UIColor.systemGray
+     }
+     }
+     print(isPicked)
+     }
+     }
+     
+     // final user's information collection---dictionary
+     var Users_Account = [Users]()
+     var user_1 = ["email" : "", "password" : "", "race" : ""]
+     user_1["email"] = "sample@gmail.ocm"
+     user_1["password"] = "123456"
+     // Classic Example of OOP and Algorithm in App System Design and Development
+     class Users {
+     let email : String
+     let password : String
+     let race : String // add other important elements below such as age, potential allergic elements......
+     // initializer or constructor
+     init (email : String, password : String, race : String) {
+     self.email = email
+     self.password = password
+     self.race = race
+     }
+     }
+     
+     // class object or instance
+     let u1 = Users(email: "user_1@gmail.com", password: "1234567", race: "Asian")
+     let u2 = Users(email: "user_2@gmail.com", password: "1234567", race: "Black")
+     let u3 = Users(email: "user_3@gmail.com", password: "1234567", race: "Latino")
+     let u4 = Users(email: "user_4@gmail.com", password: "1234567", race: "White")
+     
+     // when user press the submit registration button
+     Users_Account.append(u1)
+     Users_Account.append(u2)
+     Users_Account.append(u3)
+     Users_Account.append(u4)
+     
+     print(Users_Account)
+     // Three Major Algorithm Principle (sequencing, iteration, selection)
+     for item in Users_Account {
+     if (item.race == "Black") {
+     print(item.email)
+     }
+     }*/
 }
-
-// final user's information collection---dictionary
-var Users_Account = [Users]()
-var user_1 = ["email" : "", "password" : "", "race" : ""]
-user_1["email"] = "sample@gmail.ocm"
-user_1["password"] = "123456"
-// Classic Example of OOP and Algorithm in App System Design and Development
-class Users {
-    let email : String
-    let password : String
-    let race : String // add other important elements below such as age, potential allergic elements......
-    // initializer or constructor
-    init (email : String, password : String, race : String) {
-        self.email = email
-        self.password = password
-        self.race = race
-    }
-}
-// class object or instance
-    let u1 = Users(email: "user_1@gmail.com", password: "1234567", race: "Asian")
-    let u2 = Users(email: "user_2@gmail.com", password: "1234567", race: "Black")
-    let u3 = Users(email: "user_3@gmail.com", password: "1234567", race: "Latino")
-    let u4 = Users(email: "user_4@gmail.com", password: "1234567", race: "White")
-
-    // when user press the submit registration button
-    Users_Account.append(u1)
-    Users_Account.append(u2)
-    Users_Account.append(u3)
-    Users_Account.append(u4)
-
-print(Users_Account)
-// Three Major Algorithm Principle (sequencing, iteration, selection)
-    for item in Users_Account {
-        if (item.race == "Black") {
-            print(item.email)
-    }
-}*/
