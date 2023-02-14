@@ -166,11 +166,16 @@ class ViewController: UIViewController {
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
         let vc = UserAccountInfo()
+        let vcRegistration = RegistrationVC()
         //B obj = new B()
         vc.view.backgroundColor = UIColor.white
         //vc.title_lb.text = sign_in.titleLabel?.text
-        self.present(vc, animated : true)
-        
+        if vc.user.name == "" {
+            vcRegistration.view.backgroundColor = UIColor.white
+            self.present(vcRegistration, animated : true)
+        } else {
+            self.present(vc, animated : true)
+        }
     }
     
     @objc func Scan_Label(){
@@ -632,6 +637,7 @@ class ScanBarcode : UIViewController {
 
 
 class UserAccountInfo : UIViewController{
+    let db_user = UserDefaults.standard
     let vc = RegistrationVC()
     lazy var user = vc.user
     let left_margin : CGFloat = 10;
@@ -672,23 +678,26 @@ class UserAccountInfo : UIViewController{
         user_bio.font = UIFont.boldSystemFont(ofSize : 18)
         user_bio.backgroundColor = .white
         user_bio.text = user.email
+        
         DispatchQueue.main.asyncAfter(deadline:
             DispatchTime.now() + 1) {
             user_bio.text = self.user.email
         }
         user_bio.text = user.email
         
-        let user_age = UILabel()
-        user_age.frame = CGRect(x: left_margin + user_profile_image_view.center.x + user_profile_image_view.frame.width / 2, y: top_margin, width: 3 * (iv.frame.width / 4) - left_margin * 4, height: 20)
-        user_age.clipsToBounds = true
-        user_age.layer.cornerRadius = 5
-        user_age.font = UIFont.boldSystemFont(ofSize : 18)
-        user_age.backgroundColor = .white
-        user_age.text = user.email
+        let user_email = UILabel()
+        user_email.frame = CGRect(x: left_margin + user_profile_image_view.center.x + user_profile_image_view.frame.width / 2, y: top_margin, width: 3 * (iv.frame.width / 4) - left_margin * 4, height: 20)
+        user_email.clipsToBounds = true
+        user_email.layer.cornerRadius = 5
+        user_email.font = UIFont.boldSystemFont(ofSize : 18)
+        user_email.backgroundColor = .white
+        user_email.text = user.email
+        
         DispatchQueue.main.asyncAfter(deadline:
             DispatchTime.now() + 1) {
             user_bio.text = self.user.email
         }
+        
         user_bio.text = user.email
         iv.addSubview(user_bio)
         iv.addSubview(user_name)
@@ -716,6 +725,9 @@ class UserAccountInfo : UIViewController{
         return iv
     }()
     func setup(){
+        
+        
+        
         view.addSubview(top_container)
         view.addSubview(middle_container)
         view.addSubview(bottom_container)
@@ -797,18 +809,21 @@ enum Race{
 class User {
     var email : String
     var name : String
-    var age : Int
+    var password : String
     var race : Race
-    init (email : String, name : String, age : Int, race : Race){
+    init (email : String, name : String, password : String, race : Race){
         self.email = email
         self.name = name
-        self.age = age
+        self.password = password
         self.race = Race.Other
     }
 }
 
 
 class RegistrationVC : UIViewController {
+    
+    let db_user = UserDefaults.standard
+    
     let email_input : UITextView = {
         let tx = UITextView()
         tx.isUserInteractionEnabled = true
@@ -816,9 +831,11 @@ class RegistrationVC : UIViewController {
         tx.layer.borderColor = UIColor.black.cgColor
         
         return tx
+        
     }()
     
     let name_input : UITextView = {
+        
         let tx1 = UITextView()
         tx1.isUserInteractionEnabled = true
         tx1.layer.borderWidth = 2
@@ -828,7 +845,7 @@ class RegistrationVC : UIViewController {
         
     }()
     
-    let age_input : UITextView = {
+    let password_input : UITextView = {
         let tx2 = UITextView()
         tx2.isUserInteractionEnabled = true
         tx2.layer.borderWidth = 2
@@ -838,18 +855,28 @@ class RegistrationVC : UIViewController {
         
     }()
     
-    var user = User(email: "sample@gmail.com", name: "Joe", age: 21, race: Race.Asian)
-    
+    var user = User(email: "sample@gmail.com", name: "", password: "123456abc", race: Race.Asian)
     
     @objc func submit() {
+        guard let txt = email_input.text else {return}
+        guard let txt1 = name_input.text else {return}
+        guard let txt2 = password_input.text else {return}
         //let sampleEmail = "asdasd"
         //email_input.text = sampleEmail
         user.email = email_input.text
-        user.name = name_input.text
+        user.name =  name_input.text
+        
+        db_user.setValue(txt, forKey: "mess1")
+        db_user.setValue(txt1, forKey: "mess2")
+        db_user.setValue(txt2, forKey: "mess3")
         
         let vc = UserAccountInfo()
+        vc.view.backgroundColor = UIColor.white
         vc.user = self.user
         self.present(vc, animated: true)
+        
+        
+        //self.dismiss(animated: true)
     }
     
     @objc func test() {
@@ -964,18 +991,21 @@ class RegistrationVC : UIViewController {
         view.addSubview(UserAccount)
         Finalize.frame = CGRect(x : 50, y: 465, width: 300, height: 72 )
         view.addSubview(Finalize)
+        email_input.text = db_user.string(forKey: "mess1")
         email_input.frame = CGRect(x:45, y: 120, width: 300, height: 30)
         view.addSubview(email_input)
+        name_input.text = db_user.string(forKey: "mess2")
         name_input.frame = CGRect(x:45, y: 180, width: 300, height: 30)
         view.addSubview(name_input)
-        age_input.frame = CGRect(x:45, y: 240, width: 300, height: 30)
-        view.addSubview(age_input)
+        password_input.text = db_user.string(forKey: "mess3")
+        password_input.frame = CGRect(x:45, y: 240, width: 300, height: 30)
+        view.addSubview(password_input)
         emailAccount.frame = CGRect(x : 50, y: 96, width: 300, height: 24 )
         view.addSubview(emailAccount)
         userName.frame = CGRect(x : 50, y: 156, width: 300, height: 24 )
         view.addSubview(userName)
-        ageString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
-        view.addSubview(ageString)
+        passwordString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
+        view.addSubview(passwordString)
     }
     
     private let UserAccount: UILabel = {
@@ -1032,22 +1062,22 @@ class RegistrationVC : UIViewController {
         return username
     }()
     
-    private let ageString: UILabel = {
-        let age = UILabel()
-        age.frame = CGRect (
+    private let passwordString: UILabel = {
+        let password = UILabel()
+        password.frame = CGRect (
             x: 100,
             y: 100,
             width: 200,
             height: 48)
-        age.numberOfLines = 0
+        password.numberOfLines = 0
         //email.textAlignment = .center
-        age.textColor = UIColor.black
-        age.font = UIFont.boldSystemFont(ofSize: 12)
-        age.text = "Age"
-        age.backgroundColor = UIColor.white
+        password.textColor = UIColor.black
+        password.font = UIFont.boldSystemFont(ofSize: 12)
+        password.text = "Password"
+        password.backgroundColor = UIColor.white
         
         
-        return age
+        return password
     }()
     
     
@@ -1093,6 +1123,7 @@ class RegistrationVC : UIViewController {
             super.viewDidLoad()
             view.addSubview(EditButton)
             start3()
+            
             
             for item in res {
                 item.addTarget(self, action: #selector(SelectingRace(sender: )), for: .touchUpInside)
@@ -1221,8 +1252,8 @@ class RegistrationVC : UIViewController {
             view.addSubview(emailAccount)
             userName.frame = CGRect(x : 50, y: 156, width: 300, height: 24 )
             view.addSubview(userName)
-            ageString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
-            view.addSubview(ageString)
+            passwordString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
+            view.addSubview(passwordString)
         }
         
         private let UserAccount: UILabel = {
@@ -1279,7 +1310,7 @@ class RegistrationVC : UIViewController {
             return username
         }()
         
-        private let ageString: UILabel = {
+        private let passwordString: UILabel = {
             let age = UILabel()
             age.frame = CGRect (
                 x: 100,
@@ -1326,7 +1357,7 @@ class RegistrationVC : UIViewController {
         }()
     }
     /*---------------------------------------------------------------------------------------------------------*/
-    class SelectingAllergens : UIViewController {
+    /*class SelectingAllergens : UIViewController {
         
         let vc = RegistrationVC()
         lazy var user = vc.user
@@ -1480,11 +1511,12 @@ class RegistrationVC : UIViewController {
                 
             }
         }
-    }
+    }*/
     
-    class myAllergens: UIViewController {
+    class myAllergens : UIViewController, UITableViewDelegate, UITableViewDataSource {
         
-        let allergens : [[String]] = [["Shellfish","+"],
+        //var table_data = ["1", "2", "3"]
+        var allergens = [["Shellfish","+"],
                                       ["Egg",""],
                                       ["Peanut",""],
                                       ["Tree Nuts","+"],
@@ -1498,277 +1530,83 @@ class RegistrationVC : UIViewController {
                                       ["Meat","+"],
                                       ["Fruit","+"],
                                       ["Other","+"]]
-        let pageTitle = UILabel()
-        let warning = UILabel()
-        let segmentItems = ["Avoid", "Limit this", "Can eat"]
-        let scrollView = UIScrollView()
-        let eggRow: UIStackView = {
-            let eggRow = UIStackView()
-            let eggRowlb = UILabel()
-            eggRowlb.font = UIFont.boldSystemFont(ofSize: 20)
-            eggRowlb.backgroundColor = UIColor.white
-            eggRowlb.textColor = UIColor.black
-            eggRowlb.textAlignment = .left
-            eggRowlb.text = "Egg"
-            eggRow.addArrangedSubview(eggRowlb)
-            let bt0 = UIButton()
-            bt0.setTitle("", for: .normal)
-            eggRow.addArrangedSubview(bt0)
-            eggRow.setCustomSpacing(5, after: bt0)
-            let segmentItems = ["Avoid", "Limit this", "Can eat"]
-            let control = UISegmentedControl(items: segmentItems)
-            control.frame = CGRect(x: 5, y: 0, width: 240, height: 30)
-            control.addTarget(myAllergens.self, action: #selector(segmentControl(_:)), for: .valueChanged)
-            control.selectedSegmentIndex = 0
-            eggRow.addArrangedSubview(control)
-            NSLayoutConstraint.activate([
-                eggRowlb.widthAnchor.constraint(equalToConstant: 90.0),
-                eggRowlb.heightAnchor.constraint(equalToConstant: 30.0),
-            ])
-            NSLayoutConstraint.activate([
-                bt0.widthAnchor.constraint(equalToConstant: 30.0),
-                bt0.heightAnchor.constraint(equalToConstant: 30.0),
-            ])
-            NSLayoutConstraint.activate([
-                control.widthAnchor.constraint(equalToConstant: 240.0),
-                control.heightAnchor.constraint(equalToConstant: 30.0),
-            ])
+        
+        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+            let cell = table1.dequeueReusableCell(withIdentifier: "table1", for: indexPath) as! CustomizedCell
             
-            return eggRow
+            let bt_title : String = allergens[indexPath.row][1]
+            print(bt_title)
+            cell.item_label.text = allergens[indexPath.row][0]
+            cell.action_bt.setTitle(bt_title, for: .normal)
+            return cell
+        }
+        
+        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+            return allergens.count
+        }
+        
+        lazy var table1 : UITableView = {
+           let tb = UITableView()
+            tb.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
+            tb.backgroundColor = UIColor.systemYellow
+            tb.delegate = self
+            tb.dataSource = self
+            tb.register(CustomizedCell.self, forCellReuseIdentifier: "table1")
+            
+            return tb
         }()
         
-        override func viewDidLoad() {
+        func setup() {
+            view.addSubview(table1)
+        }
+        override func viewDidLoad(){
             super.viewDidLoad()
-            // Do any additional setup after loading the view.
-            view.backgroundColor = UIColor.white
-            //setup layout
-            pageTitle.font = UIFont.boldSystemFont(ofSize: 25)
-            pageTitle.backgroundColor = UIColor.white
-            pageTitle.textColor = UIColor.black
-            pageTitle.textAlignment = .center
-            pageTitle.text = "My Allergens"
-            warning.font = UIFont.boldSystemFont(ofSize: 25)
-            warning.backgroundColor = UIColor.yellow
-            warning.textColor = UIColor.red
-            warning.textAlignment = .center
-            warning.text = "Leave it if you are not sure!!!"
-            
-            // create a vertical stack view to hold the rows of buttons
-            let verticalStackView = UIStackView()
-            verticalStackView.axis = .vertical
-            
-            // we're going to use auto-layout
-            pageTitle.translatesAutoresizingMaskIntoConstraints = false
-            warning.translatesAutoresizingMaskIntoConstraints = false
-            scrollView.translatesAutoresizingMaskIntoConstraints = false
-            verticalStackView.translatesAutoresizingMaskIntoConstraints = false
-            
-            // add label to view
-            view.addSubview(pageTitle)
-            view.addSubview(warning)
-            
-            // add Scrollview to view
-            self.view.addSubview(scrollView)
-            
-            // add stack view to scrollView
-            scrollView.addSubview(verticalStackView)
-            
-            for i in 0..<allergens.count{
-                // add row
-                let row = UIStackView()
-                // add it to the vertical stack view
-                verticalStackView.addArrangedSubview(row)
-                verticalStackView.setCustomSpacing(15, after: row)
-                let lb = UILabel()
-                lb.font = UIFont.boldSystemFont(ofSize: 20)
-                lb.backgroundColor = UIColor.white
-                lb.textColor = UIColor.black
-                lb.textAlignment = .left
-                lb.text = allergens[i][0]
-                row.addArrangedSubview(lb)
-                row.setCustomSpacing(5, after: lb)
-                NSLayoutConstraint.activate([
-                    lb.widthAnchor.constraint(equalToConstant: 90.0),
-                    lb.heightAnchor.constraint(equalToConstant: 30.0),
-                ])
-                
-                let bt0 = UIButton()
-                if allergens[i][1]=="+"{
-                    bt0.setTitle(allergens[i][1], for: .normal)
-                    bt0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 30)
-                    //                bt0.frame = CGRectMake(0, 0, 20, 20)
-                    //                bt0.clipsToBounds = true
-                    bt0.layer.cornerRadius = 15
-                    bt0.backgroundColor = .systemGreen
-                    bt0.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
-                }
-                row.addArrangedSubview(bt0)
-                row.setCustomSpacing(5, after: bt0)
-                NSLayoutConstraint.activate([
-                    bt0.widthAnchor.constraint(equalToConstant: 30.0),
-                    bt0.heightAnchor.constraint(equalToConstant: 30.0),
-                ])
-                
-                let bt1 = UIButton()
-                bt1.setTitle("Avoid", for: .normal)
-                bt1.layer.borderWidth = 1
-                bt1.setTitleColor(.blue, for: .normal)
-                bt1.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
-                row.addArrangedSubview(bt1)
-                NSLayoutConstraint.activate([
-                    bt1.widthAnchor.constraint(equalToConstant: 80.0),
-                    bt1.heightAnchor.constraint(equalToConstant: 30.0),
-                ])
-                
-                let bt2 = UIButton()
-                bt2.setTitle("Limit this", for: .normal)
-                bt2.layer.borderWidth = 1
-                bt2.setTitleColor(.blue, for: .normal)
-                bt2.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
-                row.addArrangedSubview(bt2)
-                NSLayoutConstraint.activate([
-                    bt2.widthAnchor.constraint(equalToConstant: 80.0),
-                    bt2.heightAnchor.constraint(equalToConstant: 30.0),
-                ])
-                
-                let bt3 = UIButton()
-                bt3.setTitle("Can eat", for: .normal)
-                bt3.layer.borderWidth = 1
-                bt3.setTitleColor(.blue, for: .normal)
-                bt3.addTarget(self, action: #selector(shellfishDetail), for: .touchUpInside)
-                row.addArrangedSubview(bt3)
-                NSLayoutConstraint.activate([
-                    bt3.widthAnchor.constraint(equalToConstant: 80.0),
-                    bt3.heightAnchor.constraint(equalToConstant: 30.0),
-                ])
-            }
-            
-            verticalStackView.addArrangedSubview(eggRow)
-            
-            // finally, let's set our constraints
-            // respect safe-area
-            let safeG = view.safeAreaLayoutGuide
-            NSLayoutConstraint.activate([
-                // constrain label
-                //  50-pts from top
-                //  80% of the width
-                pageTitle.topAnchor.constraint(equalTo: safeG.topAnchor, constant: 0.0),
-                pageTitle.widthAnchor.constraint(equalTo: safeG.widthAnchor, multiplier: 0.5),
-                pageTitle.leftAnchor.constraint(equalTo: safeG.leftAnchor, constant: 10.0),
-                // constrain label
-                //  50-pts from top
-                //  80% of the width
-                //  centered horizontally
-                warning.topAnchor.constraint(equalTo: pageTitle.bottomAnchor, constant: 5.0),
-                warning.widthAnchor.constraint(equalTo: safeG.widthAnchor, multiplier: 0.95),
-                warning.centerXAnchor.constraint(equalTo: safeG.centerXAnchor),
-                // constrain scrollView
-                //  10-pts from bottom of label
-                //  Leading and Trailing to safe-area with 10-pts "padding"
-                //  Bottom to safe-area with 50-pts "padding"
-                scrollView.topAnchor.constraint(equalTo: warning.bottomAnchor, constant: 10.0),
-                scrollView.leadingAnchor.constraint(equalTo: safeG.leadingAnchor, constant: 5.0),
-                scrollView.trailingAnchor.constraint(equalTo: safeG.trailingAnchor, constant: -5.0),
-                scrollView.bottomAnchor.constraint(equalTo: safeG.bottomAnchor, constant: -75.0),
-                
-                // constrain vertical stack view to scrollView Content Layout Guide
-                //  8-pts all around (so we have a little "padding")
-                verticalStackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 5.0),
-                verticalStackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 5.0),
-                verticalStackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -5.0),
-                verticalStackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -5.0),
-                
-            ])
-            //method call
-            edit_pf()
-            save_pf()
-            navi()
+            view.frame = CGRect(x: 0, y: 0, width: 400, height: 800)
+            setup()
         }
+    }
+ 
+    class CustomizedCell : UITableViewCell{
         
-        //method declaration
-        private func edit_pf(){
-            edit_pf_bt.frame = CGRect(x: 250, y: 55, width: 50, height: 30)
-            edit_pf_bt.layer.cornerRadius = 10
-            edit_pf_bt.layer.masksToBounds = true
-            edit_pf_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
-            view.addSubview(edit_pf_bt)
-        }
+        let item_label : UILabel = {
+            let lb = UILabel()
+            lb.translatesAutoresizingMaskIntoConstraints = false
+            lb.backgroundColor = UIColor.systemBlue
+            lb.textColor = UIColor.white
+            return lb
+        }()
         
-        private func save_pf(){
-            save_pf_bt.frame = CGRect(x: 330, y: 55, width: 50, height: 30)
-            save_pf_bt.layer.cornerRadius = 10
-            save_pf_bt.layer.masksToBounds = true
-            save_pf_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
-            view.addSubview(save_pf_bt)
-        }
-        
-        private func navi(){
-            home_bt.frame = CGRect(x: 30, y: 750, width: 100, height: 30)
-            home_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
-            view.addSubview(home_bt)
-            scan_bt.frame = CGRect(x: 150, y: 750, width: 100, height: 30)
-            scan_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
-            view.addSubview(scan_bt)
-            setting_bt.frame = CGRect(x: 270, y: 750, width: 100, height: 30)
-            setting_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
-            view.addSubview(setting_bt)
-        }
-        
-        @objc func h1(sender : UIButton){
-            let vc = Main_VC()
-            vc.modalPresentationStyle = .fullScreen
-            self.present(vc, animated: true)
-        }
-        
-        let edit_pf_bt : UIButton = {
+        let action_bt : UIButton = {
             let bt = UIButton()
-            bt.setTitle("Edit", for: .normal)
+            bt.translatesAutoresizingMaskIntoConstraints = false
             bt.backgroundColor = UIColor.systemBlue
+            bt.tintColor = UIColor.white
             return bt
         }()
         
-        let save_pf_bt : UIButton = {
-            let bt = UIButton()
-            bt.setTitle("Save", for: .normal)
-            bt.backgroundColor = UIColor.systemBlue
-            return bt
-        }()
-        
-        let home_bt : UIButton = {
-            let bt = UIButton()
-            bt.setTitle("Home", for: .normal)
-            bt.backgroundColor = UIColor.systemGray
-            return bt
-        }()
-        
-        let scan_bt : UIButton = {
-            let bt = UIButton()
-            bt.setTitle("Scan", for: .normal)
-            bt.backgroundColor = UIColor.systemGray
-            return bt
-        }()
-        
-        let setting_bt : UIButton = {
-            let bt = UIButton()
-            bt.setTitle("Setting", for: .normal)
-            bt.backgroundColor = UIColor.systemGray
-            return bt
-        }()
-        
-        @objc func shellfishDetail(sender: UIButton!) {
-            warning.text = sender.title(for: .normal)
+        func setup(){
+            contentView.addSubview(item_label)
+            contentView.addSubview(action_bt)
+            
+            item_label.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5).isActive = true
+            item_label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5).isActive = true
+            item_label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+            item_label.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.3).isActive = true
+            
+            action_bt.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5).isActive = true
+            action_bt.leadingAnchor.constraint(equalTo: item_label.trailingAnchor, constant: 5).isActive = true
+            action_bt.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+            action_bt.widthAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.8).isActive = true
+
+            
         }
-        @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
-            switch (segmentedControl.selectedSegmentIndex) {
-            case 0:
-                break
-            case 1:
-                break
-            case 2:
-                break
-            default:
-                break
-            }
+        override init(style : UITableViewCell.CellStyle, reuseIdentifier : String?){
+            super.init(style : style, reuseIdentifier: "table1")
+            setup()
+        }
+        
+        required init?(coder : NSCoder){
+            fatalError("init(coder:) has not been implemented")
         }
     }
 }
