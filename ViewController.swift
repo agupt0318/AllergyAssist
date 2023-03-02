@@ -1,4 +1,5 @@
 import UIKit
+import AVFoundation
 
 var greeting = "Hello, playground"
 // https://www.youtube.com/watch?v=_U6_l58Cv4E
@@ -192,7 +193,7 @@ class ViewController: UIViewController {
     @objc func Scan_Barcode(){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = ScanBarcode()
+        let vc = BarcodeScanner()
         //B obj = new B()
         vc.view.backgroundColor = UIColor.white
         //vc.title_lb.text = sign_in.titleLabel?.text
@@ -299,7 +300,7 @@ class AccountManagement : UITabBarController {
         view.frame = CGRect(x : 0, y: 0, width: 400, height: 600)
         let v1 = UserAccountInfo()
         let v2 = ScanLabel()
-        let v3 = ScanBarcode()
+        let v3 = BarcodeScanner()
         
         let Bar_Item_A = UITabBarItem(title: "User", image : UIImage(systemName: "person"), tag: 0)
         let Bar_Item_ScanLabel = UITabBarItem(title: "User", image : UIImage(systemName: "camera"), tag: 0)
@@ -522,7 +523,7 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         home_bt.frame = CGRect(x: 150, y: 750, width: 100, height: 30)
         home_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
         view.addSubview(home_bt)
-        Image_Selector.frame = CGRect(x:ChooseUser.center.x / 3.5 + 2, y: image_view.center.y + image_view.frame.height + 5, width: image_view.frame.width - 20, height: 24)
+        Image_Selector.frame = CGRect(x:ChooseUser.center.x / 3.5 + 2, y: image_view.center.y + image_view.frame.height/1.3, width: image_view.frame.width - 20, height: 24)
         Image_Selector.addTarget(self, action: #selector(pick_image(sender: )), for: .touchUpInside)
         view.addSubview(Image_Selector)
         
@@ -678,7 +679,219 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
    }
 }
 
-class ScanBarcode : UIViewController {
+class BarcodeScanner: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
+    
+    var captureSession : AVCaptureSession!
+    var previewLayer : AVCaptureVideoPreviewLayer!
+    
+    let Barcode_Selector : UIButton = {
+        let bt = UIButton()
+        bt.setTitle("Scan A Barcode", for: .normal)
+        bt.titleLabel?.textColor = .white
+        bt.backgroundColor = UIColor.systemBlue
+        return bt
+    }()
+    
+    let barcode_view : UIImageView = {
+        let iv = UIImageView()
+        //iv.backgroundColor = UIColor.systemGray
+        //iv.isUserInteractionEnabled = true
+            iv.image = UIImage(systemName : "barcode") //iv.image = UIImage(named : "sample.png")
+        iv.layer.borderWidth = 2
+        iv.layer.borderColor = UIColor.black.cgColor
+        return iv
+    }()
+    
+    /*@objc func pick_barcode(sender : UIButton){
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceTypbe = .savedPhotosAlbum
+        picker.allowsEditing = true
+        self.present(picker, animated: true)
+    }*/
+    
+    public func setup(){
+        AllergyAssist.frame = CGRect(x : 100, y: 50, width: 200, height: 36 )
+        view.addSubview(AllergyAssist)
+        ScanAnItem.frame = CGRect(x : 125, y: 115, width: 200, height: 50 )
+        view.addSubview(ScanAnItem)
+        ChooseUser.frame = CGRect(x : 150, y: 450, width: 100, height: 50 )
+        view.addSubview(ChooseUser)
+        Barcode_Selector.frame = CGRect(x:ChooseUser.center.x / 3.5 + 2, y: barcode_view.center.y + barcode_view.frame.height + 5, width: barcode_view.frame.width - 20, height: 24)
+        //Barcode_Selector.addTarget(self, action: #selector(pick_barcode(sender: )), for: .touchUpInside)
+        view.addSubview(Barcode_Selector)
+        
+        captureSession = AVCaptureSession()
+        print("working")
+        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else {return}
+        let videoInput : AVCaptureDeviceInput
+        
+        do {
+            videoInput = try AVCaptureDeviceInput(device : videoCaptureDevice)
+        }catch{
+            print(error.localizedDescription)
+            return
+        }
+        
+        if (captureSession.canAddInput(videoInput)){
+            captureSession.addInput(videoInput)
+        }else{
+            capture_failed()
+            return
+        }
+        
+        let metadataOutput = AVCaptureMetadataOutput()
+        
+        if (captureSession.canAddOutput(metadataOutput)){
+            captureSession.addOutput(metadataOutput)
+            
+            metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+            metadataOutput.metadataObjectTypes = [.ean8, .ean13, .pdf417]
+            // EAN-8, EAN-13 are symbology
+            // Encryption and Decryption process (Encode and Decode) enigma
+        }else{
+            //add another method to alert program to stop ... laters
+            capture_failed()
+            return
+        }
+        
+        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer.frame = view.layer.bounds
+        previewLayer.videoGravity = .resizeAspectFill
+        view.layer.addSublayer(previewLayer)
+        
+        //image_display = previewLayer
+        captureSession.startRunning()
+        
+        print("")
+    }
+    
+    func capture_failed(){
+        let alert = UIAlertController(title: "Not Available...", message: "Check The Device", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+        captureSession = nil
+    }
+    
+    override func viewWillAppear(_ animated: Bool){
+        super.viewWillAppear(animated)
+        if (captureSession?.isRunning == false){
+            captureSession.startRunning()
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool){
+        super.viewWillDisappear(animated)
+        if (captureSession?.isRunning == true){
+            captureSession.stopRunning();
+        }
+    }
+    
+    public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection){
+        captureSession.stopRunning()
+        if let metadataObject = metadataObjects.first{
+            guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject
+            else {return}
+            guard let stringValue = readableObject.stringValue else {return}
+            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            found_string_display(code : stringValue)
+        }
+        
+        dismiss(animated: true)
+    }
+    
+    public func found_string_display(code : String){
+        print(code)
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+    }
+    
+    override func viewDidLoad(){
+        super.viewDidLoad()
+        view.backgroundColor = UIColor.white
+        view.addSubview(AllergyAssist)
+        PhotoIcon.frame = CGRect (
+           x: 80,
+           y: 125,
+           width: 40,
+           height: 40)
+        view.addSubview(PhotoIcon)
+        
+        setup()
+    }
+    
+    private let AllergyAssist: UILabel = {
+         let allergyAssist = UILabel()
+        allergyAssist.frame = CGRect (
+             x: 100,
+             y: 100,
+             width: 200,
+             height: 48)
+        allergyAssist.numberOfLines = 0
+        allergyAssist.textAlignment = .center
+        allergyAssist.textColor = UIColor.black
+        allergyAssist.font = UIFont.boldSystemFont(ofSize: 24)
+        allergyAssist.text = "Allergy Assist"
+        allergyAssist.backgroundColor = UIColor.white
+        
+         
+         return allergyAssist
+     }()
+    
+    private let ChooseUser: UILabel = {
+         let chooseUser = UILabel()
+        chooseUser.frame = CGRect (
+             x: 100,
+             y: 100,
+             width: 200,
+             height: 48)
+        chooseUser.numberOfLines = 2
+        chooseUser.textAlignment = .center
+        chooseUser.textColor = UIColor.black
+        chooseUser.font = UIFont.boldSystemFont(ofSize: 12)
+        chooseUser.text = "Choose User To Scan"
+        //chooseUser.cornerRadius = 10
+        chooseUser.backgroundColor = UIColor.orange
+        
+         
+         return chooseUser
+     }()
+    
+    private let ScanAnItem: UILabel = {
+         let SAI = UILabel()
+        SAI.frame = CGRect (
+             x: 100,
+             y: 100,
+             width: 200,
+             height: 48)
+        SAI.numberOfLines = 2
+        SAI.textAlignment = .center
+        SAI.textColor = UIColor.black
+        SAI.font = UIFont.boldSystemFont(ofSize: 12)
+        SAI.text = "Scan an item barcode to see if it is safe for you to eat"
+        SAI.backgroundColor = UIColor.white
+        
+         
+         return SAI
+     }()
+    
+    private let PhotoIcon: UIImageView = {
+        let photoIcon = UIImageView()
+        photoIcon.image = UIImage(named: "PhotoIcon")
+        photoIcon.contentMode = .scaleAspectFit
+        return photoIcon
+    }()
+}
+
+
+
+/*class ScanBarcode : UIViewController {
     override func viewDidLoad(){
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
@@ -784,7 +997,7 @@ class ScanBarcode : UIViewController {
     }()
     
 }
-
+*/
 class Authentication_Page : UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -1053,6 +1266,7 @@ class RegistrationVC : UIViewController {
         //email_input.text = sampleEmail
         
         let vc = myAllergens()
+        vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated: true)
     }
     
@@ -2405,7 +2619,7 @@ class RegistrationVC : UIViewController {
         @objc func Scan_Barcode(){
             //pushing the current VC to another T(x) --->  X
             //step one : instance or object declaration
-            let vc = ScanBarcode()
+            let vc = BarcodeScanner()
             //B obj = new B()
             vc.view.backgroundColor = UIColor.white
             //vc.title_lb.text = sign_in.titleLabel?.text
@@ -2467,3 +2681,4 @@ class VC: UIViewController, UIImagePickerControllerDelegate, UINavigationControl
 
 
 }
+
