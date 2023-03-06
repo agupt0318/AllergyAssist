@@ -403,6 +403,21 @@ class A : UIViewController {
 class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     let scrollView = UIScrollView()
+    let item_tobe_removed = ["?", "*", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "(", ")"]
+    var detectedText = ""
+    
+    private func cleanUpString(){
+        for i in 0..<item_tobe_removed.count{
+            if (detectedText.contains(item_tobe_removed[i])){
+                print(detectedText)
+            }
+        }
+        
+        var index1 = [Int]()
+        let s : Character = detectedText[detectedText.index(detectedText.startIndex, offsetBy: 0)]
+        
+        for i in 0..
+    }
     
     override func viewDidLoad(){
         super.viewDidLoad()
@@ -438,6 +453,8 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         scrollView.addSubview(verticalStackView)
             
         setup()
+        
+        print("aaa")
     }
     
     let User1 : UIButton = {
@@ -479,6 +496,8 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         guard let selected_Image = info [UIImagePickerController.InfoKey.originalImage] as? UIImage else {return}
         image_view.image = selected_Image
         recognizeText(image: image_view.image)
+        detectedText = IngredientList.text
+        print(detectedText)
         self.dismiss(animated: true)
     }
     
@@ -628,6 +647,8 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
     
             DispatchQueue.main.async {
         self?.IngredientList.text = text
+        self?.detectedText = (self?.IngredientList.text!)!
+        print(self?.detectedText)
             }
         }
     //Process the Request
