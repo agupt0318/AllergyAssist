@@ -405,31 +405,19 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
     let scrollView = UIScrollView()
     let item_tobe_removed = ["?", "*", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "(", ")"]
     var detectedText = ""
-    var ingredients: [String] = []
-        
-    func getIngredients() -> String {
-        return ingredients.joined(separator: ", ")
-    }
-
     
-    private func cleanUpString(){
+    /*private func cleanUpString(){
         for i in 0..<item_tobe_removed.count{
             if (detectedText.contains(item_tobe_removed[i])){
                 print(detectedText)
             }
-            
         }
-        self.ingredients = []
-        let regex = try! NSRegularExpression(pattern: "\\b(?:contains?|made from|may contain)\\b", options: .caseInsensitive)
-        let range = NSRange(detectedText.startIndex..<detectedText.endIndex, in: detectedText)
-        let labelWithoutContains = regex.stringByReplacingMatches(in: detectedText, options: [], range: range, withTemplate: "")
-        let ingredientRegex = try! NSRegularExpression(pattern: "\\b\\w+(?:\\s+\\w+)*\\b", options: .caseInsensitive)
-        let ingredientMatches = ingredientRegex.matches(in: labelWithoutContains, range: NSRange(labelWithoutContains.startIndex..<labelWithoutContains.endIndex, in: labelWithoutContains))
-        self.ingredients = ingredientMatches.map {
-                String(labelWithoutContains[Range($0.range, in: labelWithoutContains)!])
-        }
-        print(self.getIngredients())
-    }
+        
+        var index1 = [Int]()
+        let s : Character = detectedText[detectedText.index(detectedText.startIndex, offsetBy: 0)]
+        
+        for i in 0..
+    }*/
     
     override func viewDidLoad(){
         super.viewDidLoad()
@@ -692,8 +680,6 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
                percentage_arr.append(String(item))
            }
        }
-       
-       
        print(percentage_arr)
        for i in 0..<arr.count {
            let lb = UILabel()
@@ -2716,3 +2702,4 @@ class VC: UIViewController, UIImagePickerControllerDelegate, UINavigationControl
 
 
 }
+
