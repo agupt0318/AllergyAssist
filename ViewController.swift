@@ -1,5 +1,8 @@
 import UIKit
 import AVFoundation
+import CSV
+import Foundation
+import SwiftCSV
 
 var greeting = "Hello, playground"
 // https://www.youtube.com/watch?v=_U6_l58Cv4E
@@ -8,7 +11,78 @@ var greeting = "Hello, playground"
 //
 //  Created by Colin Hu on 1/2/23.
 //
+extension UniChar {
+  public func isPrintable() -> Bool {
+    guard Unicode.Scalar(UInt32(self)) != nil else {
+      struct NotAWholeScalar: Error {}
+      return false
+    }
+    return true
+  }
+}
 
+extension Character {
+  var isPrintable: Bool {
+    return unicodeScalars.contains(where: { $0.isPrintable })
+  }
+}
+
+extension Unicode.Scalar {
+  var isPrintable: Bool {
+    switch properties.generalCategory {
+    case .uppercaseLetter, .lowercaseLetter, .titlecaseLetter,
+      /* ... */
+      .mathSymbol, .currencySymbol, .modifierSymbol, .otherSymbol:
+        return true
+    case .control, .format:
+      return false
+    case .modifierLetter:
+        return true
+    case .otherLetter:
+        return true
+    case .nonspacingMark:
+        return true
+    case .spacingMark:
+        return true
+    case .enclosingMark:
+        return true
+    case .decimalNumber:
+        return true
+    case .letterNumber:
+        return true
+    case .otherNumber:
+        return true
+    case .connectorPunctuation:
+        return true
+    case .dashPunctuation:
+        return true
+    case .openPunctuation:
+        return true
+    case .closePunctuation:
+        return true
+    case .initialPunctuation:
+        return true
+    case .finalPunctuation:
+        return true
+    case .otherPunctuation:
+        return true
+    case .spaceSeparator:
+        return true
+    case .lineSeparator:
+        return true
+    case .paragraphSeparator:
+        return true
+    case .surrogate:
+        return true
+    case .privateUse:
+        return true
+    case .unassigned:
+        return true
+    @unknown default:
+        return true
+    }
+  }
+}
 
 
 import Vision
@@ -250,14 +324,14 @@ class ViewController: UIViewController {
     //Data Analysis
     public func DA(mes : String) -> Bool{
             //var text1 = mes
-            print(mes)
+            //print(mes)
         //passing the raw data in form of string
         // convert the string into array and split the substring by special symbols such as , ; space...
         // "the food contains peanut, fruit, milk" -> ["the", "food", "contains", "peanut", "fruit", "milk"]
         let res : Bool = false;
         var cnt : Int = 0
         let arr = mes.split(separator: ", ")
-        print(arr)
+        //print(arr)
         var percentage_arr = [String]()
         return res;
         for item in arr {
@@ -265,7 +339,7 @@ class ViewController: UIViewController {
                 percentage_arr.append(String(item))
             }
         }
-        print(percentage_arr)
+        //print(percentage_arr)
         for i in 0..<arr.count {
             let lb = UILabel()
             lb.numberOfLines = -1
@@ -405,20 +479,86 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
     let scrollView = UIScrollView()
     let item_tobe_removed = ["?", "*", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "(", ")"]
     var detectedText = ""
+    var ingredients: [String] = []
+        
+    // Ref: https://forums.swift.org/t/57085/5
     
-    /*private func cleanUpString(){
-        for i in 0..<item_tobe_removed.count{
-            if (detectedText.contains(item_tobe_removed[i])){
-                print(detectedText)
-            }
+    private func cleanUpString(text: String) -> String{
+        // Remove any non-printable characters and unnecessary whitespace
+        var cleanedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            .filter { $0.isASCII && $0.isPrintable }
+        
+        // Remove any non-alphanumeric characters (except spaces and some punctuation)
+        var allowedCharacterSet = CharacterSet.alphanumerics
+        allowedCharacterSet.formUnion(CharacterSet(charactersIn: "()"))
+        cleanedText = cleanedText.components(separatedBy: allowedCharacterSet.inverted)
+            .joined(separator: " ")
+        
+        // Convert any remaining whitespace to a single space
+        let whitespaceCharacterSet = CharacterSet.whitespaces
+        cleanedText = cleanedText.components(separatedBy: whitespaceCharacterSet)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        
+        // Remove the word "Ingredients" and anything before it
+        if let range = cleanedText.range(of: "Ingredients") {
+            cleanedText.removeSubrange(cleanedText.startIndex..<range.upperBound)
+        }
+        cleanedText = cleanedText.replacingOccurrences(of: " and ", with: " ", options: [.caseInsensitive, .diacriticInsensitive])
+        cleanedText = cleanedText.replacingOccurrences(of: " or ", with: " ", options: [.caseInsensitive, .diacriticInsensitive])
+        if let range = cleanedText.range(of: "Ingredients") {
+            cleanedText.removeSubrange(cleanedText.startIndex..<range.upperBound)
+        }
+        print(cleanedText)
+        if let range = cleanedText.range(of: "CONTAINS") {
+            cleanedText.removeSubrange(range.lowerBound..<cleanedText.endIndex)
+        }
+        let arr = sortByLength(strings: getCSVData())
+        cleanedText = addCommasAfterLongestMatch(string: cleanedText, strings: arr)
+        detectedText = cleanedText
+        return cleanedText
+    }
+    
+    func sortByLength(strings: [String]) -> [String] {
+        return strings.sorted(by: { $0.count < $1.count })
+    }
+    
+    func addCommasAfterLongestMatch(string: String, strings: [String]) -> String {
+        var newString = "[" + string
+        for value in strings.reversed() {
+            newString = addComma(after: Int(findIndexAfter(substring: value, in: string)), to: newString)
+        }
+        return newString + "]"
+    }
+
+    func findIndexAfter(substring: String, in string: String) -> Int {
+        if let range = string.range(of: substring) {
+            return string.distance(from: string.startIndex, to: range.upperBound)
+        }
+        return 0
+    }
+    
+    func addComma(after index: Int, to string: String) -> String {
+        var result = string
+        let insertionIndex = string.index(string.startIndex, offsetBy: index + 1)
+        result.insert(",", at: insertionIndex)
+        return result
+    }
+    
+    func highlightWords(dataset: [String], text: String) -> String {
+        var highlightedText = text
+        
+        for word in dataset {
+            highlightedText = highlightedText.replacingOccurrences(of: word, with: "\u{001B}[1m\(word)\u{001B}[0m")
         }
         
-        var index1 = [Int]()
-        let s : Character = detectedText[detectedText.index(detectedText.startIndex, offsetBy: 0)]
-        
-        for i in 0..
-    }*/
+        return highlightedText
+    }
     
+    func getCSVData() -> Array<String> {
+        return []
+    }
+ 
     override func viewDidLoad(){
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
@@ -455,6 +595,7 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         setup()
         
         print("aaa")
+        print(detectedText)
     }
     
     let User1 : UIButton = {
@@ -497,7 +638,6 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         image_view.image = selected_Image
         recognizeText(image: image_view.image)
         detectedText = IngredientList.text
-        print(detectedText)
         self.dismiss(animated: true)
     }
     
@@ -646,10 +786,11 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
            }).joined(separator: " ,")
     
             DispatchQueue.main.async {
-        self?.IngredientList.text = text
-        self?.detectedText = (self?.IngredientList.text!)!
-        print(self?.detectedText)
+        self!.detectedText = self!.cleanUpString(text: (text))
+                self?.IngredientList.text = self!.detectedText
+        
             }
+            
         }
     //Process the Request
            do {
@@ -666,21 +807,23 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
    //Data Analysis
    public func DA(mes : String) -> Bool{
            //var text1 = mes
-           print(mes)
+           //print(mes)
        //passing the raw data in form of string
        // convert the string into array and split the substring by special symbols such as , ; space...
        // "the food contains peanut, fruit, milk" -> ["the", "food", "contains", "peanut", "fruit", "milk"]
        let res : Bool = false;
        var cnt : Int = 0
        let arr = mes.split(separator: ", ")
-       print(arr)
+       //print(arr)
        var percentage_arr = [String]()
        for item in arr {
            if item.contains("%") {
                percentage_arr.append(String(item))
            }
        }
-       print(percentage_arr)
+       
+       
+       //print(percentage_arr)
        for i in 0..<arr.count {
            let lb = UILabel()
            lb.numberOfLines = -1
@@ -743,14 +886,14 @@ class BarcodeScanner: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         view.addSubview(Barcode_Selector)
         
         captureSession = AVCaptureSession()
-        print("working")
+        //print("working")
         guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else {return}
         let videoInput : AVCaptureDeviceInput
         
         do {
             videoInput = try AVCaptureDeviceInput(device : videoCaptureDevice)
         }catch{
-            print(error.localizedDescription)
+            //print(error.localizedDescription)
             return
         }
         
@@ -784,7 +927,7 @@ class BarcodeScanner: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         //image_display = previewLayer
         captureSession.startRunning()
         
-        print("")
+        //print("")
     }
     
     func capture_failed(){
@@ -822,7 +965,7 @@ class BarcodeScanner: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     
     public func found_string_display(code : String){
-        print(code)
+        //print(code)
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -1367,8 +1510,8 @@ class RegistrationVC : UIViewController {
                 res[i].backgroundColor = .gray
             }
         }
-        print(isPicked)
-        print(user)
+        //print(isPicked)
+        //print(user)
         //user["Race"] = sender.titleLabel?.text
         
     }
@@ -1589,8 +1732,8 @@ class RegistrationVC : UIViewController {
                     res[i].backgroundColor = .gray
                 }
             }
-            print(isPicked)
-            print(user_registration)
+           // print(isPicked)
+            // print(user_registration)
             user_registration["Race"] = sender.titleLabel?.text
             
         }
@@ -2073,7 +2216,7 @@ class RegistrationVC : UIViewController {
             
             //selected(x: 1, segment_item:2)
             //selected(x: 5, segment_item:1)
-            print(user_selection)
+            //print(user_selection)
             
             // Do any additional setup after loading the view.
             view.backgroundColor = UIColor.systemBackground
@@ -2232,7 +2375,7 @@ class RegistrationVC : UIViewController {
         
         @objc func SelectingMode(sender : UISegmentedControl, x : Int) {
             user_selection[x] = sender.selectedSegmentIndex
-            print(user_selection)
+           // print(user_selection)
         }
         
         private func save_pf(){
@@ -2281,8 +2424,8 @@ class RegistrationVC : UIViewController {
                 let dt = [user.name:[[user.email, user.password],myAvoid, myLimit]]
                 UserDefaults.standard.setValue(dt, forKey: "UserDB")
             }
-            print(user_selection)
-            print(user.name,user.email,myAvoid,myLimit)
+            //print(user_selection)
+            //print(user.name,user.email,myAvoid,myLimit)
             vc.user = self.user
             vc.modalPresentationStyle = .fullScreen
             self.dismiss(animated: true)
@@ -2555,9 +2698,9 @@ class RegistrationVC : UIViewController {
             let vc = myAllergens()
             var dt = UserDefaults.standard.dictionary(forKey: "UserDB")
             let arr = dt?.values as? [[String]]
-            print(arr?.count)
+            // print(arr?.count)
             var arr1 = arr?[1] as? [String]
-            print(arr1?.count)
+            // print(arr1?.count)
             //        for i in 0..<allergens.count{
             //            if sgControl[i].selectedSegmentIndex == 0{
             //                myAvoid.append(allergens[i][0])
@@ -2689,7 +2832,7 @@ class VC: UIViewController, UIImagePickerControllerDelegate, UINavigationControl
         image_view.image = selected_Image
 //        let w = selected_Image.size.width
 //        let h =  selected_Image.size.height
-        print(selected_Image.size.width, selected_Image.size.height)
+        // print(selected_Image.size.width, selected_Image.size.height)
      
         
         self.dismiss(animated: true)
@@ -2702,4 +2845,3 @@ class VC: UIViewController, UIImagePickerControllerDelegate, UINavigationControl
 
 
 }
-
