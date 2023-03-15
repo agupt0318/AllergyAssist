@@ -195,16 +195,16 @@ class ViewController: UIViewController {
     @objc func UserSetting(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-//        let tabBarVC = UITabBarController()
-//        let vc1 = UINavigationController(rootViewController: UserAccountInfo())
-//        let vc2 = UINavigationController(rootViewController: ScanLabel())
-//        let vc3 = UINavigationController(rootViewController: ScanBarcode())
-//        vc1.tabBarItem = UITabBarItem(title: "User", image : UIImage(systemName: "person"), tag: 0)
-//        vc2.tabBarItem = UITabBarItem(title: "Scan Label", image : UIImage(systemName: "camera"), tag: 0)
-//        vc3.tabBarItem = UITabBarItem(title: "Scan Barcode", image : UIImage(systemName: "barcode"), tag: 0)
-//        tabBarVC.setViewControllers([vc1,vc2,vc3],animated: false)
-//        tabBarVC.modalPresentationStyle = .fullScreen
-//        self.present(tabBarVC, animated: true)
+        let tabBarVC = UITabBarController()
+        let vc1 = UINavigationController(rootViewController: UserAccountInfo())
+        let vc2 = UINavigationController(rootViewController: ScanLabel())
+        let vc3 = UINavigationController(rootViewController: ScanBarcode())
+        vc1.tabBarItem = UITabBarItem(title: "User", image : UIImage(systemName: "person"), tag: 0)
+        vc2.tabBarItem = UITabBarItem(title: "Scan Label", image : UIImage(systemName: "camera"), tag: 0)
+        vc3.tabBarItem = UITabBarItem(title: "Scan Barcode", image : UIImage(systemName: "barcode"), tag: 0)
+        tabBarVC.setViewControllers([vc1,vc2,vc3],animated: false)
+        tabBarVC.modalPresentationStyle = .fullScreen
+        self.present(tabBarVC, animated: true)
         let vc = UserAccountInfo()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
@@ -227,20 +227,7 @@ class ViewController: UIViewController {
         self.present(vc, animated : true)
         
     }
-    
-//     override func viewDidLayoutSubviews(){
-//         super.viewDidLayoutSubviews()
-//         imageView.frame = CGRect (
-//            x: 20,
-//            y: view.safeAreaInsets.top+80,
-//            width: view.frame.size.width-40,
-//            height: view.frame.size.width-40)
-//         appName.frame = CGRect(x: 20,
-//                          y: view.safeAreaInsets.top,
-//                              width: view.frame.size.width-40,
-//                              height: 100)
-//     }
-     
+
      private func recognizeText(image: UIImage?) {
          guard let cgImage = image?.cgImage else {
              fatalError("could not get image")
@@ -308,35 +295,27 @@ class ViewController: UIViewController {
             lb.text = String(arr[i])
             view.addSubview(lb)
         }
-        /*for item in mes {
-            for inner in sample_db{
-                if item == Character(inner){
-                    cnt += 1
-                }
-                
-            }
-        }*/
     }
 }
 
-enum Race{
+/*enum Race{
     case Asian
     case Black
     case Latino
     case White
     case Other
-}
+}*/
 
 class User {
     var email : String
     var name : String
     var password : String
-    var race : Race
-    init (email : String, name : String, password : String, race : Race){
+    //var race : Race
+    init (email : String, name : String, password : String){
         self.email = email
         self.name = name
         self.password = password
-        self.race = Race.Other
+        //self.race = Race.Other
     }
 }
 
@@ -367,7 +346,7 @@ class RegistrationVC : UIViewController {
         return tx2
     }()
     
-    var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc", race: Race.Asian)
+    var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc")
     
     @objc func submit() {
         guard let txt = email_input.text else {return}
@@ -427,20 +406,20 @@ class RegistrationVC : UIViewController {
          self.work();
          }*/
         start3()
-        for item in res {
+        /*for item in res {
             item.addTarget(self, action: #selector(SelectingRace(sender: )), for: .touchUpInside)
             view.addSubview(item)
-        }
-        navi()
+        }*/
+        //navi()
     }
     
-    let races = ["Asian", "Black", "Latino", "White", "Other"]
-    lazy var res = SelectRace(arr: races,
+    //let races = ["Asian", "Black", "Latino", "White", "Other"]
+    /*lazy var res = SelectRace(arr: races,
                               n: races.count,
                               c: UIColor.systemBlue,
                               s: (view.frame.width/CGFloat(races.count)) * 0.85,
                               y: 200,
-                              m: 1.2)
+                              m: 1.2)*/
     
     let EditButton : UIButton = {
         let EB = UIButton()
@@ -460,7 +439,7 @@ class RegistrationVC : UIViewController {
         return SB
     }()
     
-    func SelectRace (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
+    /*func SelectRace (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
         var res = [UIButton]()
         for i in 0..<n {
             let bt = UIButton()
@@ -497,7 +476,7 @@ class RegistrationVC : UIViewController {
         print(user)
         //user["Race"] = sender.titleLabel?.text
         
-    }
+    }*/
     
     let SetUpMyAllergenProfile : UIButton = {
         let SUMAP = UIButton()
@@ -644,7 +623,7 @@ class RegistrationVC : UIViewController {
         }
     }
     
-    let user_bt : UIButton = {
+    /*let user_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "person"), for: .normal)
         return bt
@@ -658,9 +637,9 @@ class RegistrationVC : UIViewController {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "camera"), for: .normal)
         return bt
-    }()
+    }()*/
     
-    private func navi(){
+    /*private func navi(){
         user_bt.frame = CGRect(x: 30, y: 770, width: 100, height: 30)
         user_bt.layer.cornerRadius = 10
         user_bt.addTarget(self, action: #selector(User_Account), for: .touchUpInside)
@@ -673,7 +652,7 @@ class RegistrationVC : UIViewController {
         sl_bt.layer.cornerRadius = 10
         sl_bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         view.addSubview(sl_bt)
-    }
+    }*/
     
     @objc func User_Account(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
