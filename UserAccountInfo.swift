@@ -11,7 +11,7 @@ class UserAccountInfo : UIViewController{
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     var arr:[String] = []
 
-    var user = User(email: "", name: "", password: "")
+    var user = User(email: "", name: "")
     
     let scrollView = UIScrollView()
 
@@ -128,7 +128,7 @@ class UserAccountInfo : UIViewController{
             AddUser.heightAnchor.constraint(equalToConstant: 30.0),
         ])
 //        start2()
-        navi()
+        //navi()
     }
     lazy var AddUser : UIButton = {
         let AU = UIButton()
@@ -187,7 +187,7 @@ class UserAccountInfo : UIViewController{
         self.present(vc, animated : true)
     }
     
-    let user_bt : UIButton = {
+    /*let user_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "person"), for: .normal)
         return bt
@@ -216,7 +216,7 @@ class UserAccountInfo : UIViewController{
         sl_bt.layer.cornerRadius = 10
         sl_bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         view.addSubview(sl_bt)
-    }
+    }*/
     
     @objc func User_Account(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
@@ -237,7 +237,7 @@ class UserAccountInfo : UIViewController{
     @objc func Scan_Barcode(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = ScanBarcode()
+        let vc = BarcodeScanner()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
     }

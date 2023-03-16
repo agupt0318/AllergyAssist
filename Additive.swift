@@ -1,5 +1,5 @@
 //
-//  TreenutVC.swift
+//  Additive.swift
 //  Allergy Without StoryBoard
 //
 //  Created by Owen Hu on 2/19/23.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TreenutVC: UIViewController {
+class Additive: UIViewController {
     var user = User(email: "sample@gmail.com", name: "Joe")
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     let allergens : [[String]] = [["Shellfish","+"],
@@ -23,7 +23,7 @@ class TreenutVC: UIViewController {
                                   ["Seed","+"],
                                   ["Meat","+"],
                                   ["Fruit","+"]]
-    let allergy_ls : [String] = ["Almond","Beech nut","Brazil nut","Butternut","Bush","Cashew","Chestnut","Chinquapin","Coconut","Filbert","Ginko nut","Hazelnut","Hickory","Lichee","Macadamia nut","Pecan","Pili nut","Pine nut","Pinon nut","Pistachio","Sheanut","Walnut"]
+    let allergy_ls : [String] = ["Monosodium glutamate","Yellow Dye #5","FD&C Blue No. 2","Food preservative","Aspartame","Sucrose", "Artificial sweetener","Caffeine"]
     let pageTitle = UILabel()
     let warning = UILabel()
     let imageView: UIImageView = {
@@ -46,14 +46,14 @@ class TreenutVC: UIViewController {
         //setup layout
         pageTitle.font = UIFont.boldSystemFont(ofSize: 25)
         pageTitle.textAlignment = .center
-        pageTitle.text = "My Allergens - Tree nut"
+        pageTitle.text = "My Allergens - Additive"
         warning.font = UIFont.boldSystemFont(ofSize: 25)
         warning.backgroundColor = UIColor.yellow
         warning.textColor = UIColor.red
         warning.textAlignment = .center
         warning.text = "Leave it if you are not sure!!!"
         desc.textAlignment = .left
-        desc.text = "Approximately 50% of children that are allergic to one tree nut are allergic to another tree nut. Approximately two-thirds of patients reactive to cashew or walnut will react to pistachio or pecan, respectively. Most children who are allergic to one or more tree nuts do not outgrow their tree nut allergy."
+        desc.text = "Food additives are used for a variety of reasons, including improving flavor or texture, boosting nutritional value and maintaining product safety from production to the pantry."
         desc.numberOfLines = 10
         
         // create a vertical stack view to hold the rows of buttons

@@ -198,7 +198,7 @@ class ViewController: UIViewController {
         let tabBarVC = UITabBarController()
         let vc1 = UINavigationController(rootViewController: UserAccountInfo())
         let vc2 = UINavigationController(rootViewController: ScanLabel())
-        let vc3 = UINavigationController(rootViewController: ScanBarcode())
+        let vc3 = UINavigationController(rootViewController: Barcode_Image_Taker())
         vc1.tabBarItem = UITabBarItem(title: "User", image : UIImage(systemName: "person"), tag: 0)
         vc2.tabBarItem = UITabBarItem(title: "Scan Label", image : UIImage(systemName: "camera"), tag: 0)
         vc3.tabBarItem = UITabBarItem(title: "Scan Barcode", image : UIImage(systemName: "barcode"), tag: 0)
@@ -222,7 +222,7 @@ class ViewController: UIViewController {
     @objc func Scan_Barcode(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = ScanBarcode()
+        let vc = BarcodeScanner()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
         
@@ -309,12 +309,12 @@ class ViewController: UIViewController {
 class User {
     var email : String
     var name : String
-    var password : String
+    //var password : String
     //var race : Race
-    init (email : String, name : String, password : String){
+    init (email : String, name : String){
         self.email = email
         self.name = name
-        self.password = password
+        //self.password = password
         //self.race = Race.Other
     }
 }
@@ -338,25 +338,25 @@ class RegistrationVC : UIViewController {
         return tx1
     }()
     
-    let password_input : UITextView = {
+    /*let password_input : UITextView = {
         let tx2 = UITextView()
         tx2.isUserInteractionEnabled = true
         tx2.layer.borderWidth = 2
         tx2.layer.borderColor = UIColor.systemBlue.cgColor
         return tx2
-    }()
+    }()*/
     
-    var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc")
+    var user = User(email: "sample@gmail.com", name: "Joe")
     
     @objc func submit() {
         guard let txt = email_input.text else {return}
         guard let txt1 = name_input.text else {return}
-        guard let txt2 = password_input.text else {return}
+        //guard let txt2 = password_input.text else {return}
         //let sampleEmail = "asdasd"
         //email_input.text = sampleEmail
         user.email = txt
         user.name =  txt1
-        user.password = txt2
+        //user.password = txt2
         var myAvoid = ["Shellfish","Egg","Peanut","Tree Nut","Dairy","Fish","Sesame","Soybean","Wheat","Additive","Seed","Meat","Fruit"]
         var myLimit:[String] = []
         
@@ -365,10 +365,10 @@ class RegistrationVC : UIViewController {
                 myAvoid = arr[1]
                 myLimit = arr[2]
             } else {}
-            dt[txt1]=[[txt, txt2], myAvoid, myLimit]
+            dt[txt1]=[[txt], myAvoid, myLimit]
             db_user.setValue(dt, forKey: "UserDB")
         } else {
-            let dt = [txt1:[[txt,txt2],myAvoid, myLimit]]
+            let dt = [txt1:[[txt],myAvoid, myLimit]]
             db_user.setValue(dt, forKey: "UserDB")
         }
 //        dict[txt]=["name","password"]
@@ -386,10 +386,10 @@ class RegistrationVC : UIViewController {
     @objc func setAllergyProfile() {
         guard let txt = email_input.text else {return}
         guard let txt1 = name_input.text else {return}
-        guard let txt2 = password_input.text else {return}
+        //guard let txt2 = password_input.text else {return}
         user.email = txt
         user.name =  txt1
-        user.password = txt2
+        //user.password = txt2
         
         let vc = myAllergens()
         vc.user = self.user
@@ -507,15 +507,15 @@ class RegistrationVC : UIViewController {
         name_input.frame = CGRect(x:45, y: 180, width: 300, height: 30)
         view.addSubview(name_input)
 //        password_input.text = db_user.string(forKey: "mess3")
-        password_input.text = user.password
-        password_input.frame = CGRect(x:45, y: 240, width: 300, height: 30)
-        view.addSubview(password_input)
+        //password_input.text = user.password
+        //password_input.frame = CGRect(x:45, y: 240, width: 300, height: 30)
+        //view.addSubview(password_input)
         emailAccount.frame = CGRect(x : 50, y: 96, width: 300, height: 24 )
         view.addSubview(emailAccount)
         userName.frame = CGRect(x : 50, y: 156, width: 300, height: 24 )
         view.addSubview(userName)
-        passwordString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
-        view.addSubview(passwordString)
+        //passwordString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
+        //view.addSubview(passwordString)
     }
     
     private let UserAccount: UILabel = {
@@ -555,7 +555,7 @@ class RegistrationVC : UIViewController {
         return username
     }()
     
-    private let passwordString: UILabel = {
+    /*private let passwordString: UILabel = {
         let password = UILabel()
         password.frame = CGRect (
             x: 100,
@@ -566,7 +566,7 @@ class RegistrationVC : UIViewController {
         password.font = UIFont.boldSystemFont(ofSize: 12)
         password.text = "Password"
         return password
-    }()
+    }()*/
     
     private let Finalize: UILabel = {
         let finalize = UILabel()
@@ -673,8 +673,10 @@ class RegistrationVC : UIViewController {
    @objc func Scan_Barcode(sender : UIButton){
        //pushing the current VC to another T(x) --->  X
        //step one : instance or object declaration
-       let vc = ScanBarcode()
+       let vc = BarcodeScanner()
        vc.modalPresentationStyle = .fullScreen
        self.present(vc, animated : true)
    }
 }
+
+

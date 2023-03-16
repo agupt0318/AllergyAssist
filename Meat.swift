@@ -8,7 +8,7 @@
 import UIKit
 
 class Meat: UIViewController {
-    var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc")
+    var user = User(email: "sample@gmail.com", name: "Joe")
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     let allergens : [[String]] = [["Shellfish","+"],
                                   ["Egg",""],
@@ -195,7 +195,7 @@ class Meat: UIViewController {
                     set2.remove(allergy_ls[i])
                 }
             }
-            dt?[user.name]=[[user.email, user.password], Array(set1), Array(set2)]
+            dt?[user.name]=[[user.email], Array(set1), Array(set2)]
             print(set1,set2)
             UserDefaults.standard.setValue(dt, forKey: "UserDB")
         } else {
@@ -283,7 +283,7 @@ class Meat: UIViewController {
     @objc func Scan_Barcode(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = ScanBarcode()
+        let vc = BarcodeScanner()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
     }

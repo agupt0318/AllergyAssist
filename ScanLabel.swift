@@ -96,13 +96,13 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         
         recognizeText(image: image_view.image)
 //        start3()
-        navi()
+        //navi()
     }
     
     let image_view : UIImageView = {
         let iv = UIImageView()
         iv.isUserInteractionEnabled = true
-        iv.image = UIImage(named : "example2") //iv.image = UIImage(named : "sample.png")
+        iv.image = UIImage(systemName: "camera") //iv.image = UIImage(named : "sample.png")
         iv.layer.borderWidth = 2
         iv.layer.borderColor = UIColor.black.cgColor
         return iv
@@ -286,7 +286,7 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
        return res;
    }
     
-    let user_bt : UIButton = {
+    /*let user_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "person"), for: .normal)
         return bt
@@ -315,7 +315,7 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         sl_bt.layer.cornerRadius = 10
         sl_bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         view.addSubview(sl_bt)
-    }
+    }*/
     
     @objc func User_Account(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
@@ -336,7 +336,7 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
     @objc func Scan_Barcode(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = ScanBarcode()
+        let vc = BarcodeScanner()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
     }

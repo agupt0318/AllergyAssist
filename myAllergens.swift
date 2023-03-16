@@ -7,7 +7,7 @@
 
 import UIKit
 class myAllergens: UIViewController {
-    var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc")
+    var user = User(email: "sample@gmail.com", name: "Joe")
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     let allergens : [[String]] = [["Shellfish","+"],
                                   ["Egg",""],
@@ -265,10 +265,10 @@ class myAllergens: UIViewController {
             }
         }
         if var dt = UserDefaults.standard.dictionary(forKey: "UserDB"){
-            dt[user.name]=[[user.email, user.password], Array(set1), Array(set2)]
+            dt[user.name]=[[user.email], Array(set1), Array(set2)]
             UserDefaults.standard.setValue(dt, forKey: "UserDB")
         } else {
-            let dt = [user.name:[[user.email, user.password],Array(set1), Array(set2)]]
+            let dt = [user.name:[[user.email],Array(set1), Array(set2)]]
             UserDefaults.standard.setValue(dt, forKey: "UserDB")
         }
     }
@@ -389,7 +389,7 @@ class myAllergens: UIViewController {
    @objc func Scan_Barcode(sender : UIButton){
        //pushing the current VC to another T(x) --->  X
        //step one : instance or object declaration
-       let vc = ScanBarcode()
+       let vc = BarcodeScanner()
        vc.modalPresentationStyle = .fullScreen
        self.present(vc, animated : true)
    }
