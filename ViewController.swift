@@ -135,15 +135,15 @@ class ViewController: UIViewController {
             log_in.topAnchor.constraint(equalTo: imageView.bottomAnchor,constant:15.0),
             log_in.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.5),
             log_in.centerXAnchor.constraint(equalTo: safeG.centerXAnchor),
-            log_in.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.05),
+            log_in.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.06),
             scan_barcode.topAnchor.constraint(equalTo: log_in.bottomAnchor,constant:15.0),
             scan_barcode.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.5),
             scan_barcode.centerXAnchor.constraint(equalTo: safeG.centerXAnchor),
-            scan_barcode.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.05),
+            scan_barcode.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.06),
             scan_label.topAnchor.constraint(equalTo: scan_barcode.bottomAnchor,constant:15.0),
             scan_label.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.5),
             scan_label.centerXAnchor.constraint(equalTo: safeG.centerXAnchor),
-            scan_label.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.05),
+            scan_label.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.06),
          ])
         
          recognizeText(image: imageView.image)

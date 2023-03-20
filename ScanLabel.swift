@@ -6,11 +6,6 @@
 //
 import Vision
 import UIKit
-import UIKit
-import AVFoundation
-import CSV
-import Foundation
-import SwiftCSV
 
 class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let scrollView = UIScrollView()
@@ -101,13 +96,14 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         
         recognizeText(image: image_view.image)
 //        start3()
-        navi()
+        //navi()
     }
     
     let image_view : UIImageView = {
         let iv = UIImageView()
         iv.isUserInteractionEnabled = true
-        iv.image = UIImage(named : "example2") //iv.image = UIImage(named : "sample.png")
+        iv.image = UIImage(systemName: "camera")
+        //iv.image = UIImage(named : "sample.png")
         iv.layer.borderWidth = 2
         iv.layer.borderColor = UIColor.black.cgColor
         return iv
@@ -291,7 +287,7 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
        return res;
    }
     
-    let user_bt : UIButton = {
+    /*let user_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "person"), for: .normal)
         return bt
@@ -320,7 +316,7 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         sl_bt.layer.cornerRadius = 10
         sl_bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         view.addSubview(sl_bt)
-    }
+    }*/
     
     @objc func User_Account(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
@@ -341,135 +337,8 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
     @objc func Scan_Barcode(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = ScanBarcode()
+        let vc = BarcodeScanner()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
     }
-    
-    let item_tobe_removed = ["?", "*", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "(", ")"]
-    var detectedText = ""
-    var ingredients: [String] = []
-        
-    // Ref: https://forums.swift.org/t/57085/5
-    
-    func filterPrintableCharacters(in string: String) -> String {
-        var filteredString = ""
-        for char in string {
-            if char.isASCII && (char.asciiValue! >= 32 && char.asciiValue! <= 126) {
-                filteredString.append(char)
-            }
-        }
-        return filteredString
-    }
-    
-    private func cleanUpString(text: String) -> String{
-        // Remove any non-printable characters and unnecessary whitespace
-        var cleanedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            .filter { $0.isASCII}
-        cleanedText = filterPrintableCharacters(in: cleanedText)
-        
-        // Remove any non-alphanumeric characters (except spaces and some punctuation)
-        var allowedCharacterSet = CharacterSet.alphanumerics
-        allowedCharacterSet.formUnion(CharacterSet(charactersIn: "()"))
-        cleanedText = cleanedText.components(separatedBy: allowedCharacterSet.inverted)
-            .joined(separator: " ")
-        
-        // Convert any remaining whitespace to a single space
-        let whitespaceCharacterSet = CharacterSet.whitespaces
-        cleanedText = cleanedText.components(separatedBy: whitespaceCharacterSet)
-            .filter { !$0.isEmpty }
-            .joined(separator: " ")
-        
-        // Remove the word "Ingredients" and anything before it
-        if let range = cleanedText.range(of: "Ingredients") {
-            cleanedText.removeSubrange(cleanedText.startIndex..<range.upperBound)
-        }
-        cleanedText = cleanedText.replacingOccurrences(of: " and ", with: " ", options: [.caseInsensitive, .diacriticInsensitive])
-        cleanedText = cleanedText.replacingOccurrences(of: " or ", with: " ", options: [.caseInsensitive, .diacriticInsensitive])
-        if let range = cleanedText.range(of: "Ingredients") {
-            cleanedText.removeSubrange(cleanedText.startIndex..<range.upperBound)
-        }
-        print(cleanedText)
-        if let range = cleanedText.range(of: "CONTAINS") {
-            cleanedText.removeSubrange(range.lowerBound..<cleanedText.endIndex)
-        }
-        let arr = sortByLength(strings: getCSVData())
-        cleanedText = addCommasAfterLongestMatch(string: cleanedText, strings: arr)
-        detectedText = cleanedText
-        compareToUserProfile(string: cleanedText)
-        return cleanedText
-    }
-    
-    func sortByLength(strings: [String]) -> [String] {
-        return strings.sorted(by: { $0.count < $1.count })
-    }
-    
-    func compareToUserProfile(string: String){
-        let vc = UserAccountInfo()
-        let dt = UserDefaults.standard.dictionary(forKey: "UserDB")
-        let db_user = UserDefaults.standard
-        
-        let valueAvoid = findWords(string: string, avoidWords: dt?[vc.user.name][1] )
-        let valueLimit = findWords(string: string, avoidWords: dt?[vc.user.name][2] )
-        for value in valueAvoid{
-            print(value)
-        }
-        for value in valueLimit{
-            print(value)
-        }
-        
-    }
-    
-    func findWords(string: String, avoidWords: [String]) -> [String] {
-        let words = string.components(separatedBy: .whitespacesAndNewlines)
-        var includedWords: [String] = []
-        
-        for word in words {
-            if avoidWords.contains(word) {
-                includedWords.append(word)
-            }
-        }
-        
-        return includedWords
-    }
-
-    
-    func addCommasAfterLongestMatch(string: String, strings: [String]) -> String {
-        var newString = "[" + string
-        for value in strings.reversed() {
-            newString = addComma(after: Int(findIndexAfter(substring: value, in: string)), to: newString)
-        }
-        return newString + "]"
-    }
-
-    func findIndexAfter(substring: String, in string: String) -> Int {
-        if let range = string.range(of: substring) {
-            return string.distance(from: string.startIndex, to: range.upperBound)
-        }
-        return 0
-    }
-    
-    func addComma(after index: Int, to string: String) -> String {
-        var result = string
-        let insertionIndex = string.index(string.startIndex, offsetBy: index + 1)
-        result.insert(",", at: insertionIndex)
-        return result
-    }
-    
-    func highlightWords(dataset: [String], text: String) -> String {
-        var highlightedText = text
-        
-        for word in dataset {
-            highlightedText = highlightedText.replacingOccurrences(of: word, with: "\u{001B}[1m\(word)\u{001B}[0m")
-        }
-        
-        return highlightedText
-    }
-    
-    func getCSVData() -> Array<String> {
-        return []
-    }
-}
-
-    
 }
