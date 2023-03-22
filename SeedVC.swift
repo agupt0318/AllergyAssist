@@ -1,5 +1,5 @@
 //
-//  TreenutVC.swift
+//  SeedVC.swift
 //  Allergy Without StoryBoard
 //
 //  Created by Owen Hu on 2/19/23.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TreenutVC: UIViewController {
+class SeedVC: UIViewController {
     var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc", race: Race.Asian)
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     let allergens : [[String]] = [["Shellfish","+"],
@@ -23,7 +23,7 @@ class TreenutVC: UIViewController {
                                   ["Seed","+"],
                                   ["Meat","+"],
                                   ["Fruit","+"]]
-    let allergy_ls : [String] = ["Almond","Beech nut","Brazil nut","Butternut","Bush","Cashew","Chestnut","Chinquapin","Coconut","Filbert","Ginkgo","Hazelnut","Hickory","Macadamia nut","Pecan","Pili nut","Pine nut","Pinon nut","Pistachio","Shea nut","Walnut"]
+    let allergy_ls : [String] = ["Sesame seed","Sunflower seed","Cocoa","Quinoa"]
     let pageTitle = UILabel()
     let warning = UILabel()
     let imageView: UIImageView = {
@@ -46,14 +46,14 @@ class TreenutVC: UIViewController {
         //setup layout
         pageTitle.font = UIFont.boldSystemFont(ofSize: 25)
         pageTitle.textAlignment = .center
-        pageTitle.text = "My Allergens - Tree nut"
+        pageTitle.text = "My Allergens - Seed"
         warning.font = UIFont.boldSystemFont(ofSize: 25)
         warning.backgroundColor = UIColor.yellow
         warning.textColor = UIColor.red
         warning.textAlignment = .center
         warning.text = "Leave it if you are not sure!!!"
         desc.textAlignment = .left
-        desc.text = "Approximately 50% of children that are allergic to one tree nut are allergic to another tree nut. Approximately two-thirds of patients reactive to cashew or walnut will react to pistachio or pecan, respectively. Most children who are allergic to one or more tree nuts do not outgrow their tree nut allergy."
+        desc.text = "Allergic reactions to seeds can be severe. Sesame, sunflower and poppy seeds have been known to cause anaphylaxis. Seeds are often used in bakery and bread products, and extracts of some seeds have been found in hair care products.\n Some seed oils are highly refined, a process that removes the allergy-causing proteins from the oil. But as not all seed oils are highly refined, individuals with a seed allergy should be careful when eating foods prepared with seed oils."
         desc.numberOfLines = 10
         
         // create a vertical stack view to hold the rows of buttons

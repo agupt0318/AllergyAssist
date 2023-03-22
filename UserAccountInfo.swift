@@ -11,7 +11,7 @@ class UserAccountInfo : UIViewController{
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     var arr:[String] = []
 
-    var user = User(email: "", name: "")
+    var user = User(email: "", name: "", password: "", race: Race.Asian)
     
     let scrollView = UIScrollView()
 
@@ -33,10 +33,8 @@ class UserAccountInfo : UIViewController{
             
             // add stack view to scrollView
             scrollView.addSubview(verticalStackView)
-        
-        
-            let arr1:[String] = Array(dict!.keys)
-            arr = arr1
+
+            arr = Array(dict!.keys)
             for (index, element) in arr.enumerated(){
                 // add row
                 let row = UIStackView()
@@ -111,7 +109,6 @@ class UserAccountInfo : UIViewController{
     override func viewDidLoad(){
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-//        view.frame = CGRect(x : 0, y: 0, width: 400, height: 600)
         setup()
         view.addSubview(AddUser)
         view.addSubview(UserAccount)
@@ -128,7 +125,7 @@ class UserAccountInfo : UIViewController{
             AddUser.heightAnchor.constraint(equalToConstant: 30.0),
         ])
 //        start2()
-        //navi()
+        navi()
     }
     lazy var AddUser : UIButton = {
         let AU = UIButton()
@@ -187,36 +184,48 @@ class UserAccountInfo : UIViewController{
         self.present(vc, animated : true)
     }
     
-    /*let user_bt : UIButton = {
+    let user_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "person"), for: .normal)
+        bt.addTarget(self, action: #selector(User_Account), for: .touchUpInside)
         return bt
     }()
     let sb_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "barcode"), for: .normal)
+        bt.addTarget(self, action: #selector(Scan_Barcode), for: .touchUpInside)
         return bt
     }()
     let sl_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "camera"), for: .normal)
+        bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         return bt
     }()
     
     private func navi(){
-        user_bt.frame = CGRect(x: 30, y: 770, width: 100, height: 30)
-        user_bt.layer.cornerRadius = 10
-        user_bt.addTarget(self, action: #selector(User_Account), for: .touchUpInside)
+        user_bt.translatesAutoresizingMaskIntoConstraints = false
+        sb_bt.translatesAutoresizingMaskIntoConstraints = false
+        sl_bt.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(user_bt)
-        sb_bt.frame = CGRect(x: 140, y: 770, width: 120, height: 30)
-        sb_bt.layer.cornerRadius = 10
-        sb_bt.addTarget(self, action: #selector(Scan_Barcode), for: .touchUpInside)
         view.addSubview(sb_bt)
-        sl_bt.frame = CGRect(x: 270, y: 770, width: 100, height: 30)
-        sl_bt.layer.cornerRadius = 10
-        sl_bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         view.addSubview(sl_bt)
-    }*/
+        let safeG = view.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            user_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            user_bt.leftAnchor.constraint(equalTo: safeG.leftAnchor, constant: 20.0),
+            user_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            user_bt.heightAnchor.constraint(equalToConstant: 20.0),
+            sb_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            sb_bt.centerXAnchor.constraint(equalTo: safeG.centerXAnchor,constant: 0.0),
+            sb_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            sb_bt.heightAnchor.constraint(equalToConstant: 20.0),
+            sl_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            sl_bt.rightAnchor.constraint(equalTo: safeG.rightAnchor, constant: -20.0),
+            sl_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            sl_bt.heightAnchor.constraint(equalToConstant: 20.0),
+        ])
+    }
     
     @objc func User_Account(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
@@ -237,7 +246,7 @@ class UserAccountInfo : UIViewController{
     @objc func Scan_Barcode(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = BarcodeScanner()
+        let vc = ScanBarcode()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
     }

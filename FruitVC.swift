@@ -1,5 +1,5 @@
 //
-//  TreenutVC.swift
+//  FruitVC.swift
 //  Allergy Without StoryBoard
 //
 //  Created by Owen Hu on 2/19/23.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TreenutVC: UIViewController {
+class FruitVC: UIViewController {
     var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc", race: Race.Asian)
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     let allergens : [[String]] = [["Shellfish","+"],
@@ -23,7 +23,7 @@ class TreenutVC: UIViewController {
                                   ["Seed","+"],
                                   ["Meat","+"],
                                   ["Fruit","+"]]
-    let allergy_ls : [String] = ["Almond","Beech nut","Brazil nut","Butternut","Bush","Cashew","Chestnut","Chinquapin","Coconut","Filbert","Ginkgo","Hazelnut","Hickory","Macadamia nut","Pecan","Pili nut","Pine nut","Pinon nut","Pistachio","Shea nut","Walnut"]
+    let allergy_ls : [String] = ["Apple","Peach","Kiwi","Acerola","Apricot","Banana", "Cherry","Date","Fig","Grape","Lychee","Mango","Melon","Orange","Pear","Persimmon","Pineapple","Pomegranate","Prune","Strawberry","Tomato","Celery","Asparagus","Avocado","Bell pepper","Cabbage","Carrot","Lettuce","Potato","Pumpkin","Turnip","Zucchini"]
     let pageTitle = UILabel()
     let warning = UILabel()
     let imageView: UIImageView = {
@@ -46,14 +46,14 @@ class TreenutVC: UIViewController {
         //setup layout
         pageTitle.font = UIFont.boldSystemFont(ofSize: 25)
         pageTitle.textAlignment = .center
-        pageTitle.text = "My Allergens - Tree nut"
+        pageTitle.text = "My Allergens - Fruit"
         warning.font = UIFont.boldSystemFont(ofSize: 25)
         warning.backgroundColor = UIColor.yellow
         warning.textColor = UIColor.red
         warning.textAlignment = .center
         warning.text = "Leave it if you are not sure!!!"
         desc.textAlignment = .left
-        desc.text = "Approximately 50% of children that are allergic to one tree nut are allergic to another tree nut. Approximately two-thirds of patients reactive to cashew or walnut will react to pistachio or pecan, respectively. Most children who are allergic to one or more tree nuts do not outgrow their tree nut allergy."
+        desc.text = "Pollen Food Allergy Syndrome (PFAS), also known as oral allergy syndrome, is caused by cross-reacting allergens found in both pollen and raw fruits, vegetables, or some tree nuts. People affected by PFAS can usually eat the same fruits or vegetables in cooked form because the proteins are distorted during the heating process, and the immune system no longer recognizes the food."
         desc.numberOfLines = 10
         
         // create a vertical stack view to hold the rows of buttons

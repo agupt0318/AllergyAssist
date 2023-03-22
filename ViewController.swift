@@ -135,15 +135,15 @@ class ViewController: UIViewController {
             log_in.topAnchor.constraint(equalTo: imageView.bottomAnchor,constant:15.0),
             log_in.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.5),
             log_in.centerXAnchor.constraint(equalTo: safeG.centerXAnchor),
-            log_in.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.06),
+            log_in.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.05),
             scan_barcode.topAnchor.constraint(equalTo: log_in.bottomAnchor,constant:15.0),
             scan_barcode.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.5),
             scan_barcode.centerXAnchor.constraint(equalTo: safeG.centerXAnchor),
-            scan_barcode.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.06),
+            scan_barcode.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.05),
             scan_label.topAnchor.constraint(equalTo: scan_barcode.bottomAnchor,constant:15.0),
             scan_label.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.5),
             scan_label.centerXAnchor.constraint(equalTo: safeG.centerXAnchor),
-            scan_label.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.06),
+            scan_label.heightAnchor.constraint(equalTo: safeG.heightAnchor, multiplier: 0.05),
          ])
         
          recognizeText(image: imageView.image)
@@ -195,16 +195,16 @@ class ViewController: UIViewController {
     @objc func UserSetting(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let tabBarVC = UITabBarController()
-        let vc1 = UINavigationController(rootViewController: UserAccountInfo())
-        let vc2 = UINavigationController(rootViewController: ScanLabel())
-        let vc3 = UINavigationController(rootViewController: Barcode_Image_Taker())
-        vc1.tabBarItem = UITabBarItem(title: "User", image : UIImage(systemName: "person"), tag: 0)
-        vc2.tabBarItem = UITabBarItem(title: "Scan Label", image : UIImage(systemName: "camera"), tag: 0)
-        vc3.tabBarItem = UITabBarItem(title: "Scan Barcode", image : UIImage(systemName: "barcode"), tag: 0)
-        tabBarVC.setViewControllers([vc1,vc2,vc3],animated: false)
-        tabBarVC.modalPresentationStyle = .fullScreen
-        self.present(tabBarVC, animated: true)
+//        let tabBarVC = UITabBarController()
+//        let vc1 = UINavigationController(rootViewController: UserAccountInfo())
+//        let vc2 = UINavigationController(rootViewController: ScanLabel())
+//        let vc3 = UINavigationController(rootViewController: ScanBarcode())
+//        vc1.tabBarItem = UITabBarItem(title: "User", image : UIImage(systemName: "person"), tag: 0)
+//        vc2.tabBarItem = UITabBarItem(title: "Scan Label", image : UIImage(systemName: "camera"), tag: 0)
+//        vc3.tabBarItem = UITabBarItem(title: "Scan Barcode", image : UIImage(systemName: "barcode"), tag: 0)
+//        tabBarVC.setViewControllers([vc1,vc2,vc3],animated: false)
+//        tabBarVC.modalPresentationStyle = .fullScreen
+//        self.present(tabBarVC, animated: true)
         let vc = UserAccountInfo()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
@@ -222,12 +222,25 @@ class ViewController: UIViewController {
     @objc func Scan_Barcode(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
         //step one : instance or object declaration
-        let vc = BarcodeScanner()
+        let vc = ScanBarcode()
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated : true)
         
     }
-
+    
+//     override func viewDidLayoutSubviews(){
+//         super.viewDidLayoutSubviews()
+//         imageView.frame = CGRect (
+//            x: 20,
+//            y: view.safeAreaInsets.top+80,
+//            width: view.frame.size.width-40,
+//            height: view.frame.size.width-40)
+//         appName.frame = CGRect(x: 20,
+//                          y: view.safeAreaInsets.top,
+//                              width: view.frame.size.width-40,
+//                              height: 100)
+//     }
+     
      private func recognizeText(image: UIImage?) {
          guard let cgImage = image?.cgImage else {
              fatalError("could not get image")
@@ -295,27 +308,35 @@ class ViewController: UIViewController {
             lb.text = String(arr[i])
             view.addSubview(lb)
         }
+        /*for item in mes {
+            for inner in sample_db{
+                if item == Character(inner){
+                    cnt += 1
+                }
+                
+            }
+        }*/
     }
 }
 
-/*enum Race{
+enum Race{
     case Asian
     case Black
     case Latino
     case White
     case Other
-}*/
+}
 
 class User {
     var email : String
     var name : String
-    //var password : String
-    //var race : Race
-    init (email : String, name : String){
+    var password : String
+    var race : Race
+    init (email : String, name : String, password : String, race : Race){
         self.email = email
         self.name = name
-        //self.password = password
-        //self.race = Race.Other
+        self.password = password
+        self.race = Race.Other
     }
 }
 
@@ -338,25 +359,25 @@ class RegistrationVC : UIViewController {
         return tx1
     }()
     
-    /*let password_input : UITextView = {
+    let password_input : UITextView = {
         let tx2 = UITextView()
         tx2.isUserInteractionEnabled = true
         tx2.layer.borderWidth = 2
         tx2.layer.borderColor = UIColor.systemBlue.cgColor
         return tx2
-    }()*/
+    }()
     
-    var user = User(email: "sample@gmail.com", name: "Joe")
+    var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc", race: Race.Asian)
     
     @objc func submit() {
         guard let txt = email_input.text else {return}
         guard let txt1 = name_input.text else {return}
-        //guard let txt2 = password_input.text else {return}
+        guard let txt2 = password_input.text else {return}
         //let sampleEmail = "asdasd"
         //email_input.text = sampleEmail
         user.email = txt
         user.name =  txt1
-        //user.password = txt2
+        user.password = txt2
         var myAvoid = ["Shellfish","Egg","Peanut","Tree Nut","Dairy","Fish","Sesame","Soybean","Wheat","Additive","Seed","Meat","Fruit"]
         var myLimit:[String] = []
         
@@ -365,10 +386,10 @@ class RegistrationVC : UIViewController {
                 myAvoid = arr[1]
                 myLimit = arr[2]
             } else {}
-            dt[txt1]=[[txt], myAvoid, myLimit]
+            dt[txt1]=[[txt, txt2], myAvoid, myLimit]
             db_user.setValue(dt, forKey: "UserDB")
         } else {
-            let dt = [txt1:[[txt],myAvoid, myLimit]]
+            let dt = [txt1:[[txt,txt2],myAvoid, myLimit]]
             db_user.setValue(dt, forKey: "UserDB")
         }
 //        dict[txt]=["name","password"]
@@ -386,10 +407,10 @@ class RegistrationVC : UIViewController {
     @objc func setAllergyProfile() {
         guard let txt = email_input.text else {return}
         guard let txt1 = name_input.text else {return}
-        //guard let txt2 = password_input.text else {return}
+        guard let txt2 = password_input.text else {return}
         user.email = txt
         user.name =  txt1
-        //user.password = txt2
+        user.password = txt2
         
         let vc = myAllergens()
         vc.user = self.user
@@ -400,26 +421,38 @@ class RegistrationVC : UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.systemBackground
-        view.addSubview(EditButton)
-        view.frame = CGRect(x: 0, y: 0, width: 400, height: 600)
         /*DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2) {
          self.work();
          }*/
+        view.addSubview(SaveButton)
+        view.addSubview(UserAccount)
+        SaveButton.translatesAutoresizingMaskIntoConstraints = false
+        UserAccount.translatesAutoresizingMaskIntoConstraints = false
+        let safeG = view.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            UserAccount.topAnchor.constraint(equalTo: safeG.topAnchor,constant:5.0),
+            UserAccount.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.75),
+            UserAccount.heightAnchor.constraint(equalToConstant: 30.0),
+            SaveButton.topAnchor.constraint(equalTo: safeG.topAnchor,constant:5.0),
+            SaveButton.leftAnchor.constraint(equalTo: UserAccount.rightAnchor,constant: 10.0),
+            SaveButton.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.2),
+            SaveButton.heightAnchor.constraint(equalToConstant: 30.0),
+        ])
         start3()
-        /*for item in res {
+        for item in res {
             item.addTarget(self, action: #selector(SelectingRace(sender: )), for: .touchUpInside)
             view.addSubview(item)
-        }*/
-        //navi()
+        }
+        navi()
     }
     
-    //let races = ["Asian", "Black", "Latino", "White", "Other"]
-    /*lazy var res = SelectRace(arr: races,
+    let races = ["Asian", "Black", "Latino", "White", "Other"]
+    lazy var res = SelectRace(arr: races,
                               n: races.count,
                               c: UIColor.systemBlue,
                               s: (view.frame.width/CGFloat(races.count)) * 0.85,
                               y: 200,
-                              m: 1.2)*/
+                              m: 1.2)
     
     let EditButton : UIButton = {
         let EB = UIButton()
@@ -439,7 +472,7 @@ class RegistrationVC : UIViewController {
         return SB
     }()
     
-    /*func SelectRace (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
+    func SelectRace (arr : [String], n : Int, c : UIColor, s : CGFloat, y : CGFloat, m : CGFloat) -> [UIButton] {
         var res = [UIButton]()
         for i in 0..<n {
             let bt = UIButton()
@@ -476,7 +509,7 @@ class RegistrationVC : UIViewController {
         print(user)
         //user["Race"] = sender.titleLabel?.text
         
-    }*/
+    }
     
     let SetUpMyAllergenProfile : UIButton = {
         let SUMAP = UIButton()
@@ -488,14 +521,8 @@ class RegistrationVC : UIViewController {
     }()
     
     private func start3(){
-//        EditButton.frame = CGRect(x : 125, y: 400, width: 50, height: 36 )
-//        view.addSubview(EditButton)
-        SaveButton.frame = CGRect(x : 300, y: 60, width: 80, height: 30 )
-        view.addSubview(SaveButton)
         SetUpMyAllergenProfile.frame = CGRect(x : 75, y: 575, width : 250, height : 36)
         view.addSubview(SetUpMyAllergenProfile)
-        UserAccount.frame = CGRect(x : 0, y: 60, width: 300, height: 30 )
-        view.addSubview(UserAccount)
         Finalize.frame = CGRect(x : 50, y: 465, width: 300, height: 72 )
         view.addSubview(Finalize)
 //        email_input.text = db_user.string(forKey: "mess1")
@@ -507,15 +534,15 @@ class RegistrationVC : UIViewController {
         name_input.frame = CGRect(x:45, y: 180, width: 300, height: 30)
         view.addSubview(name_input)
 //        password_input.text = db_user.string(forKey: "mess3")
-        //password_input.text = user.password
-        //password_input.frame = CGRect(x:45, y: 240, width: 300, height: 30)
-        //view.addSubview(password_input)
+        password_input.text = user.password
+        password_input.frame = CGRect(x:45, y: 240, width: 300, height: 30)
+        view.addSubview(password_input)
         emailAccount.frame = CGRect(x : 50, y: 96, width: 300, height: 24 )
         view.addSubview(emailAccount)
         userName.frame = CGRect(x : 50, y: 156, width: 300, height: 24 )
         view.addSubview(userName)
-        //passwordString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
-        //view.addSubview(passwordString)
+        passwordString.frame = CGRect(x : 50, y: 216, width: 300, height: 24 )
+        view.addSubview(passwordString)
     }
     
     private let UserAccount: UILabel = {
@@ -555,7 +582,7 @@ class RegistrationVC : UIViewController {
         return username
     }()
     
-    /*private let passwordString: UILabel = {
+    private let passwordString: UILabel = {
         let password = UILabel()
         password.frame = CGRect (
             x: 100,
@@ -566,7 +593,7 @@ class RegistrationVC : UIViewController {
         password.font = UIFont.boldSystemFont(ofSize: 12)
         password.text = "Password"
         return password
-    }()*/
+    }()
     
     private let Finalize: UILabel = {
         let finalize = UILabel()
@@ -623,36 +650,48 @@ class RegistrationVC : UIViewController {
         }
     }
     
-    /*let user_bt : UIButton = {
+    let user_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "person"), for: .normal)
+        bt.addTarget(self, action: #selector(User_Account), for: .touchUpInside)
         return bt
     }()
     let sb_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "barcode"), for: .normal)
+        bt.addTarget(self, action: #selector(Scan_Barcode), for: .touchUpInside)
         return bt
     }()
     let sl_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "camera"), for: .normal)
+        bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         return bt
-    }()*/
+    }()
     
-    /*private func navi(){
-        user_bt.frame = CGRect(x: 30, y: 770, width: 100, height: 30)
-        user_bt.layer.cornerRadius = 10
-        user_bt.addTarget(self, action: #selector(User_Account), for: .touchUpInside)
+    private func navi(){
+        user_bt.translatesAutoresizingMaskIntoConstraints = false
+        sb_bt.translatesAutoresizingMaskIntoConstraints = false
+        sl_bt.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(user_bt)
-        sb_bt.frame = CGRect(x: 140, y: 770, width: 120, height: 30)
-        sb_bt.layer.cornerRadius = 10
-        sb_bt.addTarget(self, action: #selector(Scan_Barcode), for: .touchUpInside)
         view.addSubview(sb_bt)
-        sl_bt.frame = CGRect(x: 270, y: 770, width: 100, height: 30)
-        sl_bt.layer.cornerRadius = 10
-        sl_bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         view.addSubview(sl_bt)
-    }*/
+        let safeG = view.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            user_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            user_bt.leftAnchor.constraint(equalTo: safeG.leftAnchor, constant: 20.0),
+            user_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            user_bt.heightAnchor.constraint(equalToConstant: 20.0),
+            sb_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            sb_bt.centerXAnchor.constraint(equalTo: safeG.centerXAnchor,constant: 0.0),
+            sb_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            sb_bt.heightAnchor.constraint(equalToConstant: 20.0),
+            sl_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            sl_bt.rightAnchor.constraint(equalTo: safeG.rightAnchor, constant: -20.0),
+            sl_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            sl_bt.heightAnchor.constraint(equalToConstant: 20.0),
+        ])
+    }
     
     @objc func User_Account(sender : UIButton){
         //pushing the current VC to another T(x) --->  X
@@ -673,10 +712,8 @@ class RegistrationVC : UIViewController {
    @objc func Scan_Barcode(sender : UIButton){
        //pushing the current VC to another T(x) --->  X
        //step one : instance or object declaration
-       let vc = BarcodeScanner()
+       let vc = ScanBarcode()
        vc.modalPresentationStyle = .fullScreen
        self.present(vc, animated : true)
    }
 }
-
-

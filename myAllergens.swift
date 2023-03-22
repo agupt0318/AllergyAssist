@@ -7,7 +7,7 @@
 
 import UIKit
 class myAllergens: UIViewController {
-    var user = User(email: "sample@gmail.com", name: "Joe")
+    var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc", race: Race.Asian)
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     let allergens : [[String]] = [["Shellfish","+"],
                                   ["Egg",""],
@@ -53,14 +53,15 @@ class myAllergens: UIViewController {
         pageTitle.translatesAutoresizingMaskIntoConstraints = false
         warning.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        save_pf_bt.translatesAutoresizingMaskIntoConstraints = false
         verticalStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        // add label to view
         view.addSubview(pageTitle)
+        view.addSubview(save_pf_bt)
         view.addSubview(warning)
         
         // add Scrollview to view
-        self.view.addSubview(scrollView)
+        view.addSubview(scrollView)
         
         // add stack view to scrollView
         scrollView.addSubview(verticalStackView)
@@ -69,8 +70,7 @@ class myAllergens: UIViewController {
             sgControl.append(UISegmentedControl(items: segmentItems))
         }
         
-        let dt = UserDefaults.standard.dictionary(forKey: "UserDB")
-        if let arr = dt?[user.name] as? [[String]]{
+        if let arr = dict?[user.name] as? [[String]]{
             myAvoid = arr[1]
             myLimit = arr[2]
         }else{
@@ -153,9 +153,13 @@ class myAllergens: UIViewController {
             // constrain label
             //  50-pts from top
             //  80% of the width
-            pageTitle.topAnchor.constraint(equalTo: safeG.topAnchor, constant: 0.0),
+            pageTitle.topAnchor.constraint(equalTo: safeG.topAnchor, constant: 5.0),
             pageTitle.widthAnchor.constraint(equalTo: safeG.widthAnchor, multiplier: 0.75),
-            pageTitle.leftAnchor.constraint(equalTo: safeG.leftAnchor, constant: 10.0),
+            pageTitle.heightAnchor.constraint(equalToConstant: 30.0),
+            save_pf_bt.topAnchor.constraint(equalTo: safeG.topAnchor,constant:5.0),
+            save_pf_bt.leftAnchor.constraint(equalTo: pageTitle.rightAnchor,constant: 10.0),
+            save_pf_bt.widthAnchor.constraint(equalTo: safeG.widthAnchor,multiplier: 0.2),
+            save_pf_bt.heightAnchor.constraint(equalToConstant: 30.0),
             // constrain label
             //  50-pts from top
             //  80% of the width
@@ -182,7 +186,7 @@ class myAllergens: UIViewController {
         ])
         //method call
 //        edit_pf()
-        save_pf()
+//        save_pf()
         navi()
     }
     
@@ -195,27 +199,55 @@ class myAllergens: UIViewController {
 //        view.addSubview(edit_pf_bt)
 //    }
     
-    private func save_pf(){
-        save_pf_bt.frame = CGRect(x: 330, y: 60, width: 50, height: 30)
-        save_pf_bt.layer.cornerRadius = 10
-        save_pf_bt.layer.masksToBounds = true
-        save_pf_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
-        view.addSubview(save_pf_bt)
-    }
+//    private func save_pf(){
+//        save_pf_bt.frame = CGRect(x: 330, y: 60, width: 50, height: 30)
+//        save_pf_bt.layer.cornerRadius = 10
+//        save_pf_bt.layer.masksToBounds = true
+//        save_pf_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
+//        view.addSubview(save_pf_bt)
+//    }
+    
+    let user_bt : UIButton = {
+        let bt = UIButton()
+        bt.setImage(UIImage(systemName: "person"), for: .normal)
+        bt.addTarget(self, action: #selector(User_Account), for: .touchUpInside)
+        return bt
+    }()
+    let sb_bt : UIButton = {
+        let bt = UIButton()
+        bt.setImage(UIImage(systemName: "barcode"), for: .normal)
+        bt.addTarget(self, action: #selector(Scan_Barcode), for: .touchUpInside)
+        return bt
+    }()
+    let sl_bt : UIButton = {
+        let bt = UIButton()
+        bt.setImage(UIImage(systemName: "camera"), for: .normal)
+        bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
+        return bt
+    }()
     
     private func navi(){
-        user_bt.frame = CGRect(x: 30, y: 770, width: 100, height: 30)
-        user_bt.layer.cornerRadius = 10
-        user_bt.addTarget(self, action: #selector(User_Account), for: .touchUpInside)
+        user_bt.translatesAutoresizingMaskIntoConstraints = false
+        sb_bt.translatesAutoresizingMaskIntoConstraints = false
+        sl_bt.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(user_bt)
-        sb_bt.frame = CGRect(x: 140, y: 770, width: 120, height: 30)
-        sb_bt.layer.cornerRadius = 10
-        sb_bt.addTarget(self, action: #selector(Scan_Barcode), for: .touchUpInside)
         view.addSubview(sb_bt)
-        sl_bt.frame = CGRect(x: 270, y: 770, width: 100, height: 30)
-        sl_bt.layer.cornerRadius = 10
-        sl_bt.addTarget(self, action: #selector(Scan_Label), for: .touchUpInside)
         view.addSubview(sl_bt)
+        let safeG = view.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            user_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            user_bt.leftAnchor.constraint(equalTo: safeG.leftAnchor, constant: 20.0),
+            user_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            user_bt.heightAnchor.constraint(equalToConstant: 20.0),
+            sb_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            sb_bt.centerXAnchor.constraint(equalTo: safeG.centerXAnchor,constant: 0.0),
+            sb_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            sb_bt.heightAnchor.constraint(equalToConstant: 20.0),
+            sl_bt.bottomAnchor.constraint(equalTo: safeG.bottomAnchor,constant: -20.0),
+            sl_bt.rightAnchor.constraint(equalTo: safeG.rightAnchor, constant: -20.0),
+            sl_bt.widthAnchor.constraint(equalToConstant: 20.0),
+            sl_bt.heightAnchor.constraint(equalToConstant: 20.0),
+        ])
     }
     
     @objc func h1(sender : UIButton){
@@ -248,10 +280,6 @@ class myAllergens: UIViewController {
             if sgControl[i].selectedSegmentIndex == 0{
                 set1.insert(allergens[i][0])
                 set2.remove(allergens[i][0])
-//                if myAvoid.contains(allergens[i][0]) == false{
-//                    myAvoid.append(allergens[i][0])
-//                    myLimit = myLimit.filter {$0 != allergens[i][0]}
-//                }
             } else if sgControl[i].selectedSegmentIndex == 1{
                 set2.insert(allergens[i][0])
                 set1.remove(allergens[i][0])
@@ -265,10 +293,10 @@ class myAllergens: UIViewController {
             }
         }
         if var dt = UserDefaults.standard.dictionary(forKey: "UserDB"){
-            dt[user.name]=[[user.email], Array(set1), Array(set2)]
+            dt[user.name]=[[user.email, user.password], Array(set1), Array(set2)]
             UserDefaults.standard.setValue(dt, forKey: "UserDB")
         } else {
-            let dt = [user.name:[[user.email],Array(set1), Array(set2)]]
+            let dt = [user.name:[[user.email, user.password],Array(set1), Array(set2)]]
             UserDefaults.standard.setValue(dt, forKey: "UserDB")
         }
     }
@@ -284,43 +312,9 @@ class myAllergens: UIViewController {
         let bt = UIButton()
         bt.setTitle("Save", for: .normal)
         bt.backgroundColor = UIColor.systemGreen
-        return bt
-    }()
-    
-//    let home_bt : UIButton = {
-//        let bt = UIButton()
-//        bt.setTitle("Home", for: .normal)
-//        bt.backgroundColor = UIColor.systemBlue
-//        return bt
-//    }()
-//
-//    let sb_bt : UIButton = {
-//        let bt = UIButton()
-//        bt.setTitle("Scan Barcode", for: .normal)
-//        bt.backgroundColor = UIColor.systemBlue
-//        return bt
-//    }()
-//
-//    let sl_bt : UIButton = {
-//        let bt = UIButton()
-//        bt.setTitle("Scan Label", for: .normal)
-//        bt.backgroundColor = UIColor.systemBlue
-//        return bt
-//    }()
-    
-    let user_bt : UIButton = {
-        let bt = UIButton()
-        bt.setImage(UIImage(systemName: "person"), for: .normal)
-        return bt
-    }()
-    let sb_bt : UIButton = {
-        let bt = UIButton()
-        bt.setImage(UIImage(systemName: "barcode"), for: .normal)
-        return bt
-    }()
-    let sl_bt : UIButton = {
-        let bt = UIButton()
-        bt.setImage(UIImage(systemName: "camera"), for: .normal)
+        bt.layer.cornerRadius = 10
+        bt.layer.masksToBounds = true
+        bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
         return bt
     }()
     
@@ -333,25 +327,43 @@ class myAllergens: UIViewController {
     }
     
     @objc func TreeNut(sender: UIButton!) {
+        save_info()
         let vc = TreenutVC()
+        vc.user = self.user
         vc.modalPresentationStyle = .fullScreen
         self.present(vc, animated: true)
     }
     
     @objc func Additive(sender: UIButton!) {
-        warning.text = sender.title(for: .normal)
+        save_info()
+        let vc = AdditiveVC()
+        vc.user = self.user
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true)
     }
     
     @objc func Seed(sender: UIButton!) {
-        warning.text = sender.title(for: .normal)
+        save_info()
+        let vc = SeedVC()
+        vc.user = self.user
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true)
     }
     
     @objc func Meat(sender: UIButton!) {
-        warning.text = sender.title(for: .normal)
+        save_info()
+        let vc = MeatVC()
+        vc.user = self.user
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true)
     }
     
     @objc func Fruit(sender: UIButton!) {
-        warning.text = sender.title(for: .normal)
+        save_info()
+        let vc = FruitVC()
+        vc.user = self.user
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true)
     }
     
     @objc func segmentControl(_ sender: UISegmentedControl) {
@@ -389,7 +401,7 @@ class myAllergens: UIViewController {
    @objc func Scan_Barcode(sender : UIButton){
        //pushing the current VC to another T(x) --->  X
        //step one : instance or object declaration
-       let vc = BarcodeScanner()
+       let vc = ScanBarcode()
        vc.modalPresentationStyle = .fullScreen
        self.present(vc, animated : true)
    }

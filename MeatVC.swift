@@ -1,5 +1,5 @@
 //
-//  TreenutVC.swift
+//  MeatVC.swift
 //  Allergy Without StoryBoard
 //
 //  Created by Owen Hu on 2/19/23.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TreenutVC: UIViewController {
+class MeatVC: UIViewController {
     var user = User(email: "sample@gmail.com", name: "Joe", password: "123456abc", race: Race.Asian)
     lazy var dict = UserDefaults.standard.dictionary(forKey: "UserDB")
     let allergens : [[String]] = [["Shellfish","+"],
@@ -23,7 +23,7 @@ class TreenutVC: UIViewController {
                                   ["Seed","+"],
                                   ["Meat","+"],
                                   ["Fruit","+"]]
-    let allergy_ls : [String] = ["Almond","Beech nut","Brazil nut","Butternut","Bush","Cashew","Chestnut","Chinquapin","Coconut","Filbert","Ginkgo","Hazelnut","Hickory","Macadamia nut","Pecan","Pili nut","Pine nut","Pinon nut","Pistachio","Shea nut","Walnut"]
+    let allergy_ls : [String] = ["Beaf","Poultry","Lamb","Duck","Goat"]
     let pageTitle = UILabel()
     let warning = UILabel()
     let imageView: UIImageView = {
@@ -46,15 +46,15 @@ class TreenutVC: UIViewController {
         //setup layout
         pageTitle.font = UIFont.boldSystemFont(ofSize: 25)
         pageTitle.textAlignment = .center
-        pageTitle.text = "My Allergens - Tree nut"
+        pageTitle.text = "My Allergens - Meat"
         warning.font = UIFont.boldSystemFont(ofSize: 25)
         warning.backgroundColor = UIColor.yellow
         warning.textColor = UIColor.red
         warning.textAlignment = .center
         warning.text = "Leave it if you are not sure!!!"
         desc.textAlignment = .left
-        desc.text = "Approximately 50% of children that are allergic to one tree nut are allergic to another tree nut. Approximately two-thirds of patients reactive to cashew or walnut will react to pistachio or pecan, respectively. Most children who are allergic to one or more tree nuts do not outgrow their tree nut allergy."
-        desc.numberOfLines = 10
+        desc.text = "Meat from any kind of mammal — beef, lamb, pork, goat, and even whale and seal — can cause an allergic reaction. A bite from the Lone Star tick can cause people to develop an allergy to red meat, including beef and pork. A meat allergy can develop any time in life. If you are allergic to one type of meat, it is possible you also are allergic to other meats, as well as to poultry such as chicken, turkey and duck. Heating and cooking meat can make the product less likely to cause a reaction."
+        desc.numberOfLines = 12
         
         // create a vertical stack view to hold the rows of buttons
         let verticalStackView = UIStackView()
@@ -178,7 +178,7 @@ class TreenutVC: UIViewController {
 //        save_pf_bt.addTarget(self, action: #selector(h1(sender: )), for: .touchUpInside)
 //        view.addSubview(save_pf_bt)
 //    }
-    
+
     let user_bt : UIButton = {
         let bt = UIButton()
         bt.setImage(UIImage(systemName: "person"), for: .normal)
