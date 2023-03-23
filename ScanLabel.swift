@@ -455,6 +455,7 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         
         // Create an attributed string with the original text
         let attributedString = NSMutableAttributedString(string: IngredientList.text)
+        atrributedString = cleanUpString(attributedString)
         // Loop through all the words to match
         for word in wordsToHighlight {
             // Create a regular expression object
@@ -471,5 +472,39 @@ class ScanLabel : UIViewController, UIImagePickerControllerDelegate, UINavigatio
         }
         // Set the attributed text of the text view
         IngredientList.attributedText = attributedString
+    }
+    
+    private func cleanUpString(text: String) -> String{
+        // Remove any non-printable characters and unnecessary whitespace
+        var cleanedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            .filter { $0.isASCII}
+        cleanedText = filterPrintableCharacters(in: cleanedText)
+
+        // Remove any non-alphanumeric characters (except spaces and some punctuation)
+        var allowedCharacterSet = CharacterSet.alphanumerics
+        allowedCharacterSet.formUnion(CharacterSet(charactersIn: "()"))
+        cleanedText = cleanedText.components(separatedBy: allowedCharacterSet.inverted)
+            .joined(separator: " ")
+
+        // Convert any remaining whitespace to a single space
+        let whitespaceCharacterSet = CharacterSet.whitespaces
+        cleanedText = cleanedText.components(separatedBy: whitespaceCharacterSet)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+
+        // Remove the word "Ingredients" and anything before it
+        if let range = cleanedText.range(of: "Ingredients") {
+            cleanedText.removeSubrange(cleanedText.startIndex..<range.upperBound)
+        }
+        cleanedText = cleanedText.replacingOccurrences(of: " and ", with: " ", options: [.caseInsensitive, .diacriticInsensitive])
+        cleanedText = cleanedText.replacingOccurrences(of: " or ", with: " ", options: [.caseInsensitive, .diacriticInsensitive])
+        if let range = cleanedText.range(of: "Ingredients") {
+            cleanedText.removeSubrange(cleanedText.startIndex..<range.upperBound)
+        }
+        print(cleanedText)
+        if let range = cleanedText.range(of: "CONTAINS") {
+            cleanedText.removeSubrange(range.lowerBound..<cleanedText.endIndex)
+        }
+        return cleanedText
     }
 }
